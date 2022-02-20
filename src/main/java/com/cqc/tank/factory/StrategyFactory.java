@@ -1,0 +1,13 @@
+package com.cqc.tank.factory;
+
+import com.cqc.tank.entity.enums.GroupEnum;
+import com.cqc.tank.strategy.FireStrategy;
+
+/**
+ * @author Cqc on 2022/2/17 10:51 上午
+ */
+public abstract class StrategyFactory {
+
+    public abstract FireStrategy getFireStrategy(GroupEnum group);
+
+}

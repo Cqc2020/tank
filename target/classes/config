@@ -1,0 +1,6 @@
+# InitialTankCount
+initialTankCount=10
+
+# fire level
+playerLevel=2
+enemyLevel=1
