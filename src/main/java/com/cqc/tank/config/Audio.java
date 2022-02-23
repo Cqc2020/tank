@@ -1,4 +1,4 @@
-package com.cqc.tank.objects;
+package com.cqc.tank.config;
 
 import javax.sound.sampled.*;
 import java.io.File;

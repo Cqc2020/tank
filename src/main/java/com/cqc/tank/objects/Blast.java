@@ -1,7 +1,9 @@
 package com.cqc.tank.objects;
 
+import com.cqc.tank.config.Audio;
 import com.cqc.tank.config.ResourceMgr;
 import com.cqc.tank.TankFrame;
+import lombok.Data;
 
 import java.awt.*;
 
@@ -9,9 +11,8 @@ import java.awt.*;
  * 爆炸
  * @author Cqc on 2022/2/13 8:27 下午
  */
-public class Blast {
-    private int x;
-    private int y;
+@Data
+public class Blast extends AbstractGameObject {
     private TankFrame tankFrame;
     private boolean alive = true;
     private static int WIDTH = ResourceMgr.blasts[0].getWidth();
@@ -27,6 +28,7 @@ public class Blast {
      * 爆炸画笔
      * @param g
      */
+    @Override
     public void paint(Graphics g) {
         if (!alive) {
             tankFrame.getBlastList().remove(this);

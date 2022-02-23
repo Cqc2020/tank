@@ -6,6 +6,7 @@ import com.cqc.tank.factory.FireStrategyFactory;
 import com.cqc.tank.objects.Blast;
 import com.cqc.tank.objects.Bullet;
 import com.cqc.tank.objects.Tank;
+import com.cqc.tank.objects.Wall;
 
 import java.awt.*;
 import java.awt.event.KeyAdapter;
@@ -25,6 +26,8 @@ public class TankFrame extends Frame {
 
     private List<Bullet> playerBulletList = new ArrayList<>();
 
+    private List<Wall> wallList = new ArrayList<>();
+
     private Tank p1Tank = new Tank(500, 500, DirectionEnum.UP, GroupEnum.PLAYER, this);
 
     private List<Tank> enemyTankList = new ArrayList<>();
@@ -32,6 +35,11 @@ public class TankFrame extends Frame {
     private List<Blast> blastList = new ArrayList<>();
 
     public FireStrategyFactory fireStrategyFactory = new FireStrategyFactory();
+
+    {
+        wallList.add(new Wall(0, 200, this));
+        wallList.add(new Wall(740, 400, this));
+    }
 
     boolean bU = false;
     boolean bL = false;
@@ -151,6 +159,10 @@ public class TankFrame extends Frame {
         for (int i = 0; i < blastList.size(); i++) {
             blastList.get(i).paint(g);
         }
+        // 画出墙体
+        for (int i = 0; i < wallList.size(); i++) {
+            wallList.get(i).paint(g);
+        }
         // 子弹与坦克的碰撞检测
         for (int i = 0; i < playerBulletList.size(); i++) {
             for (int j = 0; j < enemyTankList.size(); j++) {
@@ -202,7 +214,7 @@ public class TankFrame extends Frame {
         return blastList;
     }
 
-    public void setBlastList(List<Blast> blastList) {
-        this.blastList = blastList;
+    public List<Wall> getWallList() {
+        return wallList;
     }
 }

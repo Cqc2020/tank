@@ -4,6 +4,7 @@ import com.cqc.tank.config.ResourceMgr;
 import com.cqc.tank.TankFrame;
 import com.cqc.tank.entity.enums.DirectionEnum;
 import com.cqc.tank.entity.enums.GroupEnum;
+import lombok.Data;
 
 import java.awt.*;
 
@@ -12,17 +13,8 @@ import java.awt.*;
  *
  * @author Cqc on 2022/2/12 3:01 下午
  */
-public class Bullet {
-
-    /**
-     * 子弹x轴初始位置
-     */
-    private int x;
-
-    /**
-     * 子弹y轴初始位置
-     */
-    private int y;
+@Data
+public class Bullet extends AbstractGameObject {
 
     /**
      * 子弹移动方向
@@ -78,6 +70,7 @@ public class Bullet {
      *
      * @param g
      */
+    @Override
     public void paint(Graphics g) {
         if (!alive) {
             tankFrame.getPlayerBulletList().remove(this);
@@ -150,23 +143,44 @@ public class Bullet {
 
     /**
      * 检测子弹是否与坦克碰撞
-     * @param tank
+     *
+     * @param obj
      */
-    public void collideWith(Tank tank) {
-        // 己方子弹不应与己方坦克相撞
-        if (this.group.equals(tank.getGroup())) {
-            return;
+    public void collideWith(Object obj) {
+        if (obj instanceof Tank) {
+            Tank tank = (Tank) obj;
+            // 己方子弹不应与己方坦克相撞
+            if (this.group.equals(tank.getGroup())) {
+                return;
+            }
+            if (bulletRect.intersects(tank.getTankRect())) {
+                this.die();
+                tank.die();
+            }
         }
-        if (bulletRect.intersects(tank.getTankRect())) {
-            tank.die();
-            this.die();
+        if (obj instanceof Bullet) {
+            Bullet bullet = (Bullet) obj;
+            if (this.group.equals(bullet.getGroup())) {
+                return;
+            }
+            if (bulletRect.intersects(bullet.getBulletRect())) {
+                this.die();
+                bullet.die();
+            }
+        }
+        if (obj instanceof Wall) {
+            Wall wall = (Wall) obj;
+            if (bulletRect.intersects(wall.getWallRect())) {
+                // this.die();
+                // bullet.die();
+            }
         }
     }
 
     /**
      * 子弹死亡
      */
-    private void die() {
+    public void die() {
         this.alive = false;
     }
 
@@ -209,13 +223,4 @@ public class Bullet {
                 return 0;
         }
     }
-
-    public DirectionEnum getDir() {
-        return dir;
-    }
-
-    public void setDir(DirectionEnum dir) {
-        this.dir = dir;
-    }
-
 }

@@ -18,7 +18,7 @@ public class TankWarMain {
             tankFrame.getEnemyTankList().add(new Tank(150 + i * 100, 150, DirectionEnum.DOWN, GroupEnum.ENEMY, tankFrame));
         }
         while (true) {
-            Thread.sleep(10);
+            // Thread.sleep(10);
             tankFrame.repaint();
         }
     }
