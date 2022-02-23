@@ -39,7 +39,7 @@ public class RandomDirFireStrategy implements FireStrategy {
         if (new Random().nextInt(100) > 95) {
             // 开火：坦克对象在窗口中生成一个子弹对象
             tank.getTankFrame().getPlayerBulletList().add(new Bullet(bX, bY, tank.getDir(), tank.getGroup(), tank.getTankFrame()));
-            tank.setRandomDir();
+            tank.setEnemyTankDir();
         }
     }
 }

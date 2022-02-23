@@ -8,6 +8,8 @@ import com.cqc.tank.strategy.FireStrategy;
  */
 public abstract class StrategyFactory {
 
-    public abstract FireStrategy getFireStrategy(GroupEnum group);
+    public FireStrategy getFireStrategy(GroupEnum group) {
+        throw new UnsupportedOperationException();
+    }
 
 }

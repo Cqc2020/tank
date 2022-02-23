@@ -4,7 +4,10 @@ import com.cqc.tank.TankFrame;
 import com.cqc.tank.config.ResourceMgr;
 import com.cqc.tank.entity.enums.DirectionEnum;
 import com.cqc.tank.entity.enums.GroupEnum;
+import com.cqc.tank.factory.CollisionDetectorFactory;
 import com.cqc.tank.strategy.FireStrategy;
+import com.cqc.tank.util.TankWallCollisionDetector;
+import lombok.Data;
 
 import java.awt.*;
 import java.util.Random;
@@ -14,68 +17,53 @@ import java.util.Random;
  *
  * @author Cqc on 2022/2/12 9:48 上午
  */
-public class Tank {
-
-    /**
-     * 坦克x轴初始位置
-     */
-    private int x;
-
-    /**
-     * 坦克y轴初始位置
-     */
-    private int y;
+@Data
+public class Tank extends AbstractGameObject {
 
     /**
      * 坦克移动方向
      */
     private DirectionEnum dir;
-
     /**
      * 坦克分组
      */
     private GroupEnum group;
-
     /**
      * 敌人移动方向
      */
     private Random random = new Random();
-
     /**
      * 坦克窗口
      */
     private TankFrame tankFrame;
-
     /**
      * 坦克存活状态
      */
     private boolean alive = true;
-
     /**
      * 玩家坦克移动标志
      */
     private boolean playerMoving = false;
-
+    /**
+     * 玩家坦克与物体碰撞标志
+     */
+    private boolean playerTankCollideFlag = false;
     /**
      * 敌方坦克移动标志
      */
     private boolean enemyMoving = true;
-
     /**
-     * 矩形
+     * 坦克形状
      */
     private Rectangle tankRect = new Rectangle();
-
     /**
      * 玩家坦克移动速度
      */
-    private static final double PLAYER_TANK_SPEED = 4;
-
+    private static final int PLAYER_TANK_SPEED = 4;
     /**
      * 敌人坦克移动速度
      */
-    private static final double ENEMY_TANK_SPEED = 1;
-
+    private static final int ENEMY_TANK_SPEED = 1;
 
     public Tank(int x, int y, DirectionEnum dir, GroupEnum group, TankFrame tankFrame) {
         this.x = x;
@@ -86,8 +74,8 @@ public class Tank {
 
         tankRect.x = this.x;
         tankRect.y = this.y;
-        tankRect.width = getBulletWidth();
-        tankRect.height = getBulletHeight();
+        tankRect.width = getTankWidth();
+        tankRect.height = getTankHeight();
     }
 
     /**
@@ -95,6 +83,7 @@ public class Tank {
      *
      * @param g
      */
+    @Override
     public void paint(Graphics g) {
         if (!alive) {
             tankFrame.getEnemyTankList().remove(this);
@@ -147,16 +136,16 @@ public class Tank {
                 // 根据按下的键，向不同方向移动
                 switch (dir) {
                     case UP:
-                        y -= PLAYER_TANK_SPEED;
+                        upward();
                         break;
                     case LEFT:
-                        x -= PLAYER_TANK_SPEED;
+                        leftward();
                         break;
                     case DOWN:
-                        y += PLAYER_TANK_SPEED;
+                        downward();
                         break;
                     case RIGHT:
-                        x += PLAYER_TANK_SPEED;
+                        rightward();
                         break;
                     default:
                         break;
@@ -191,6 +180,58 @@ public class Tank {
     }
 
     /**
+     * 向上移动
+     */
+    private void upward() {
+        for (Wall wall : tankFrame.getWallList()) {
+            if (CollisionDetectorFactory.getCollisionDetectStrategy(TankWallCollisionDetector.class).collisionDetect(this, wall, x, y - PLAYER_TANK_SPEED)) {
+                playerTankCollideFlag = true;
+                return;
+            }
+        }
+        y -= PLAYER_TANK_SPEED;
+    }
+
+    /**
+     * 向下移动
+     */
+    private void downward() {
+        for (Wall wall : tankFrame.getWallList()) {
+            if (CollisionDetectorFactory.getCollisionDetectStrategy(TankWallCollisionDetector.class).collisionDetect(this, wall, x, y + PLAYER_TANK_SPEED)) {
+                playerTankCollideFlag = true;
+                return;
+            }
+        }
+        y += PLAYER_TANK_SPEED;
+    }
+
+    /**
+     * 向左移动
+     */
+    private void leftward() {
+        for (Wall wall : tankFrame.getWallList()) {
+            if (CollisionDetectorFactory.getCollisionDetectStrategy(TankWallCollisionDetector.class).collisionDetect(this, wall, x - PLAYER_TANK_SPEED, y)) {
+                playerTankCollideFlag = true;
+                return;
+            }
+        }
+        x -= PLAYER_TANK_SPEED;
+    }
+
+    /**
+     * 向右移动
+     */
+    private void rightward() {
+        for (Wall wall : tankFrame.getWallList()) {
+            if (CollisionDetectorFactory.getCollisionDetectStrategy(TankWallCollisionDetector.class).collisionDetect(this, wall, x + PLAYER_TANK_SPEED, y)) {
+                playerTankCollideFlag = true;
+                return;
+            }
+        }
+        x += PLAYER_TANK_SPEED;
+    }
+
+    /**
      * 坦克窗口边界检测
      */
     private void boundsCheck() {
@@ -203,7 +244,7 @@ public class Tank {
         if (this.y <= 30) {
             this.y = 30;
         }
-        if (this.y >= TankFrame.GAME_HEIGHT -getTankHeight()) {
+        if (this.y >= TankFrame.GAME_HEIGHT - getTankHeight()) {
             this.y = TankFrame.GAME_HEIGHT - getTankHeight();
         }
     }
@@ -211,7 +252,7 @@ public class Tank {
     /**
      * 设置敌人随机方向
      */
-    public void setRandomDir() {
+    public void setEnemyTankDir() {
         this.dir = DirectionEnum.values()[random.nextInt(4)];
     }
 
@@ -337,77 +378,5 @@ public class Tank {
             default:
                 return 0;
         }
-    }
-
-    public DirectionEnum getDir() {
-        return dir;
-    }
-
-    public void setDir(DirectionEnum dir) {
-        this.dir = dir;
-    }
-
-    public boolean isPlayerMoving() {
-        return playerMoving;
-    }
-
-    public void setPlayerMoving(boolean playerMoving) {
-        this.playerMoving = playerMoving;
-    }
-
-    public boolean isEnemyMoving() {
-        return enemyMoving;
-    }
-
-    public void setEnemyMoving(boolean enemyMoving) {
-        this.enemyMoving = enemyMoving;
-    }
-
-    public int getX() {
-        return x;
-    }
-
-    public void setX(int x) {
-        this.x = x;
-    }
-
-    public int getY() {
-        return y;
-    }
-
-    public void setY(int y) {
-        this.y = y;
-    }
-
-    public GroupEnum getGroup() {
-        return group;
-    }
-
-    public void setGroup(GroupEnum group) {
-        this.group = group;
-    }
-
-    public boolean isAlive() {
-        return alive;
-    }
-
-    public void setAlive(boolean alive) {
-        this.alive = alive;
-    }
-
-    public Rectangle getTankRect() {
-        return tankRect;
-    }
-
-    public void setTankRect(Rectangle tankRect) {
-        this.tankRect = tankRect;
-    }
-
-    public TankFrame getTankFrame() {
-        return tankFrame;
-    }
-
-    public void setTankFrame(TankFrame tankFrame) {
-        this.tankFrame = tankFrame;
     }
 }
