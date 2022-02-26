@@ -1,11 +1,10 @@
-package com.cqc.tank;
+package com.cqc.tank.frame;
 
+import com.cqc.tank.config.ResourceMgr;
 import com.cqc.tank.entity.enums.DirectionEnum;
 import com.cqc.tank.entity.enums.GroupEnum;
-import com.cqc.tank.objects.Blast;
-import com.cqc.tank.objects.Bullet;
-import com.cqc.tank.objects.Tank;
-import com.cqc.tank.objects.Wall;
+import com.cqc.tank.entity.enums.WallTypeEnum;
+import com.cqc.tank.objects.*;
 
 import java.awt.*;
 import java.awt.event.KeyAdapter;
@@ -22,11 +21,15 @@ public class TankFrame extends Frame {
     /**
      * 游戏窗体宽度
      */
-    public static final int GAME_WIDTH = 800;
+    public static final int GAME_WIDTH = 1000;
     /**
      * 游戏窗体高度
      */
     public static final int GAME_HEIGHT = 600;
+    /**
+     * 基地老鹰
+     */
+    private Eagle eagle;
     /**
      * 玩家子弹集合
      */
@@ -43,10 +46,23 @@ public class TankFrame extends Frame {
      * 爆炸集合
      */
     private List<Blast> blastList = new ArrayList<>();
+    /**
+     * 草地集合
+     */
+    private List<Grass> grassList = new ArrayList<>();
+    /**
+     * 水块集合
+     */
+    private List<Water> waterList = new ArrayList<>();
 
     {
-        wallList.add(new Wall(0, 200, this));
-        wallList.add(new Wall(740, 400, this));
+        wallList.add(new Wall(0, 200, this, WallTypeEnum.WALLS));
+        wallList.add(new Wall(GAME_WIDTH - ResourceMgr.walls.getWidth(), GAME_HEIGHT - 200, this, WallTypeEnum.WALLS));
+        wallList.add(new Wall((GAME_WIDTH)/2 - ResourceMgr.eagle.getWidth() - ResourceMgr.wall.getWidth(), GAME_HEIGHT - ResourceMgr.wall.getHeight(), this, WallTypeEnum.WALL));
+        wallList.add(new Wall(300, 300, this, WallTypeEnum.STEEL));
+        eagle = new Eagle((GAME_WIDTH)/2 - ResourceMgr.eagle.getWidth(), GAME_HEIGHT - ResourceMgr.eagle.getHeight(), this);
+        grassList.add(new Grass(450, 256, this));
+        waterList.add(new Water(667, 400, this));
     }
 
     // 按键反馈
@@ -169,6 +185,16 @@ public class TankFrame extends Frame {
         // 画出墙体
         for (int i = 0; i < wallList.size(); i++) {
             wallList.get(i).paint(g);
+        }
+        // 画出老鹰
+        eagle.paint(g);
+        // 画出草地
+        for (int i = 0; i < grassList.size(); i++) {
+            grassList.get(i).paint(g);
+        }
+        // 画出水区域
+        for (int i = 0; i < waterList.size(); i++) {
+            waterList.get(i).paint(g);
         }
         // 子弹与坦克的碰撞检测
         for (int i = 0; i < playerBulletList.size(); i++) {

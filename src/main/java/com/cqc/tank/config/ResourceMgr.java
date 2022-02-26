@@ -18,9 +18,33 @@ public class ResourceMgr {
     /** 坦克爆炸图片 */
     public static BufferedImage[] blasts = new BufferedImage[8];
     /**
-     * 墙体图片
+     * 小红墙体图片
+     */
+    public static BufferedImage wall;
+    /**
+     * 大红墙体图片
      */
     public static BufferedImage walls;
+    /**
+     * 小加强白墙体图片
+     */
+    public static BufferedImage steel;
+    /**
+     * 大加强白墙体图片
+     */
+    public static BufferedImage steels;
+    /**
+     * 基地老鹰图片
+     */
+    public static BufferedImage eagle;
+    /**
+     * 草地图片
+     */
+    public static BufferedImage grass;
+    /**
+     * 水图片
+     */
+    public static BufferedImage water;
 
     static {
         try {
@@ -44,6 +68,15 @@ public class ResourceMgr {
             }
 
             walls = ImageIO.read(Objects.requireNonNull(ResourceMgr.class.getClassLoader().getResourceAsStream("image/walls.gif")));
+            wall = ImageIO.read(Objects.requireNonNull(ResourceMgr.class.getClassLoader().getResourceAsStream("image/wall.gif")));
+            steel = ImageIO.read(Objects.requireNonNull(ResourceMgr.class.getClassLoader().getResourceAsStream("image/steel.gif")));
+            steels = ImageIO.read(Objects.requireNonNull(ResourceMgr.class.getClassLoader().getResourceAsStream("image/steels.gif")));
+
+            eagle = ImageIO.read(Objects.requireNonNull(ResourceMgr.class.getClassLoader().getResourceAsStream("image/eagle.gif")));
+
+            grass = ImageIO.read(Objects.requireNonNull(ResourceMgr.class.getClassLoader().getResourceAsStream("image/grass.png")));
+
+            water = ImageIO.read(Objects.requireNonNull(ResourceMgr.class.getClassLoader().getResourceAsStream("image/water.gif")));
         } catch (IOException e) {
             e.printStackTrace();
         }

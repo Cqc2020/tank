@@ -1,6 +1,6 @@
 package com.cqc.tank.objects;
 
-import com.cqc.tank.TankFrame;
+import com.cqc.tank.frame.TankFrame;
 import com.cqc.tank.config.ResourceMgr;
 import com.cqc.tank.entity.enums.DirectionEnum;
 import com.cqc.tank.entity.enums.GroupEnum;
@@ -191,6 +191,7 @@ public class Tank extends AbstractGameObject {
      * @param y
      */
     private void doHandleCollision(int x, int y) {
+        // 坦克撞墙处理
         for (Wall wall : tankFrame.getWallList()) {
             if (CollisionDetectorFactory.getCollisionDetectStrategy(TankWallCollisionDetector.class).collisionDetect(this, wall, x, y)) {
                 moveFlag = false;
@@ -212,7 +213,7 @@ public class Tank extends AbstractGameObject {
     }
 
     /**
-     * 坦克回退一步
+     * 坦克停止移动
      * @param tank
      */
     private void stopMoving(Tank tank) {

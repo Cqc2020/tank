@@ -1,7 +1,8 @@
 package com.cqc;
 
-import com.cqc.tank.TankFrame;
+import com.cqc.tank.frame.TankFrame;
 import com.cqc.tank.config.TankWarConfiguration;
+import com.cqc.tank.entity.enums.WallTypeEnum;
 import com.cqc.tank.objects.Wall;
 
 import java.io.IOException;
@@ -27,8 +28,8 @@ public class Test {
 
     class MyList extends ArrayList<Wall> {
         {
-            add(new Wall(0, 200, new TankFrame()));
-            add(new Wall(0, 200, new TankFrame()));
+            add(new Wall(0, 200, new TankFrame(), WallTypeEnum.WALLS));
+            add(new Wall(0, 200, new TankFrame(), WallTypeEnum.WALLS));
         }
     }
 }

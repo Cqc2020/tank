@@ -2,7 +2,7 @@ package com.cqc.tank.objects;
 
 import com.cqc.tank.config.Audio;
 import com.cqc.tank.config.ResourceMgr;
-import com.cqc.tank.TankFrame;
+import com.cqc.tank.frame.TankFrame;
 import lombok.Data;
 
 import java.awt.*;

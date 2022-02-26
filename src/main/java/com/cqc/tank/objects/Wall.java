@@ -1,7 +1,8 @@
 package com.cqc.tank.objects;
 
-import com.cqc.tank.TankFrame;
+import com.cqc.tank.frame.TankFrame;
 import com.cqc.tank.config.ResourceMgr;
+import com.cqc.tank.entity.enums.WallTypeEnum;
 import lombok.Data;
 
 import java.awt.*;
@@ -14,7 +15,6 @@ import java.awt.*;
  */
 @Data
 public class Wall extends AbstractGameObject {
-
     /**
      * 坦克窗口
      */
@@ -25,12 +25,15 @@ public class Wall extends AbstractGameObject {
      */
     private Rectangle wallRect = new Rectangle();
 
+    private WallTypeEnum type;
+
     private boolean alive = true;
 
-    public Wall(int x, int y, TankFrame tankFrame) {
+    public Wall(int x, int y, TankFrame tankFrame, WallTypeEnum type) {
         this.x = x;
         this.y = y;
         this.tankFrame = tankFrame;
+        this.type = type;
 
         wallRect.x = this.x;
         wallRect.y = this.y;
@@ -40,7 +43,20 @@ public class Wall extends AbstractGameObject {
 
     @Override
     public void paint(Graphics g) {
-        g.drawImage(ResourceMgr.walls, x, y, null);
+        switch (type) {
+            case WALL:
+                g.drawImage(ResourceMgr.wall, x, y, null);
+                break;
+            case WALLS:
+                g.drawImage(ResourceMgr.walls, x, y, null);
+                break;
+            case STEEL:
+                g.drawImage(ResourceMgr.steel, x, y, null);
+                break;
+            default:
+                break;
+        }
+
     }
 
     /**

@@ -1,6 +1,6 @@
 package com.cqc.app;
 
-import com.cqc.tank.TankFrame;
+import com.cqc.tank.frame.TankFrame;
 import com.cqc.tank.config.TankWarConfiguration;
 import com.cqc.tank.entity.enums.DirectionEnum;
 import com.cqc.tank.entity.enums.GroupEnum;
@@ -9,7 +9,7 @@ import com.cqc.tank.objects.Tank;
 /**
  * @author Cqc on 2022/2/11 11:00 下午
  */
-public class TankWarMain {
+public class BattleCityMain {
     public static void main(String[] args) {
         TankFrame tankFrame = new TankFrame();
         Integer initialEnemyTankCount = Integer.valueOf(TankWarConfiguration.getInstance().get("initialEnemyTankCount").toString());

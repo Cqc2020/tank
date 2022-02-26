@@ -1,7 +1,7 @@
 package com.cqc.tank.objects;
 
 import com.cqc.tank.config.ResourceMgr;
-import com.cqc.tank.TankFrame;
+import com.cqc.tank.frame.TankFrame;
 import com.cqc.tank.entity.enums.DirectionEnum;
 import com.cqc.tank.entity.enums.GroupEnum;
 import lombok.Data;
@@ -20,32 +20,26 @@ public class Bullet extends AbstractGameObject {
      * 子弹移动方向
      */
     private DirectionEnum dir;
-
     /**
      * 子弹分组
      */
     private final GroupEnum group;
-
     /**
      * 坦克窗口
      */
     private TankFrame tankFrame;
-
     /**
      * 子弹存活状态
      */
     private boolean alive = true;
-
     /**
      * 矩形
      */
     private Rectangle bulletRect = new Rectangle();
-
     /**
      * 子弹移动速度
      */
     private static final int PLAYER_BULLET_SPEED = 10;
-
     /**
      * 子弹移动速度
      */
