@@ -1,4 +1,4 @@
-package com.cqc.tank.strategy;
+package com.cqc.tank.strategy.fire;
 
 import com.cqc.tank.objects.Bullet;
 import com.cqc.tank.objects.Tank;
@@ -36,7 +36,7 @@ public class RandomDirFireStrategy implements FireStrategy {
                 break;
         }
         // 设置随机方向
-        if (new Random().nextInt(100) > 95) {
+        if (new Random().nextInt(100) > 98) {
             // 开火：坦克对象在窗口中生成一个子弹对象
             tank.getTankFrame().getPlayerBulletList().add(new Bullet(bX, bY, tank.getDir(), tank.getGroup(), tank.getTankFrame()));
             tank.setEnemyTankDir();

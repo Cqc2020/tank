@@ -5,8 +5,9 @@ import com.cqc.tank.config.ResourceMgr;
 import com.cqc.tank.entity.enums.DirectionEnum;
 import com.cqc.tank.entity.enums.GroupEnum;
 import com.cqc.tank.factory.CollisionDetectorFactory;
-import com.cqc.tank.strategy.FireStrategy;
-import com.cqc.tank.util.TankWallCollisionDetector;
+import com.cqc.tank.factory.FireStrategyFactory;
+import com.cqc.tank.strategy.collide.TankTankCollisionDetector;
+import com.cqc.tank.strategy.collide.TankWallCollisionDetector;
 import lombok.Data;
 
 import java.awt.*;
@@ -43,34 +44,28 @@ public class Tank extends AbstractGameObject {
     /**
      * 玩家坦克移动标志
      */
-    private boolean playerMoving = false;
-    /**
-     * 玩家坦克与物体碰撞标志
-     */
-    private boolean playerTankCollideFlag = false;
-    /**
-     * 敌方坦克移动标志
-     */
-    private boolean enemyMoving = true;
+    private boolean moveFlag;
     /**
      * 坦克形状
      */
     private Rectangle tankRect = new Rectangle();
     /**
-     * 玩家坦克移动速度
+     * 坦克移动速度
      */
-    private static final int PLAYER_TANK_SPEED = 4;
+    private int speed;
     /**
-     * 敌人坦克移动速度
+     * 坦克开火策略工厂
      */
-    private static final int ENEMY_TANK_SPEED = 1;
+    private FireStrategyFactory fireStrategyFactory = new FireStrategyFactory();
 
-    public Tank(int x, int y, DirectionEnum dir, GroupEnum group, TankFrame tankFrame) {
+    public Tank(int x, int y, DirectionEnum dir, GroupEnum group, TankFrame tankFrame, int speed, boolean moveFlag) {
         this.x = x;
         this.y = y;
         this.dir = dir;
         this.group = group;
         this.tankFrame = tankFrame;
+        this.speed = speed;
+        this.moveFlag = moveFlag;
 
         tankRect.x = this.x;
         tankRect.y = this.y;
@@ -86,7 +81,7 @@ public class Tank extends AbstractGameObject {
     @Override
     public void paint(Graphics g) {
         if (!alive) {
-            tankFrame.getEnemyTankList().remove(this);
+            tankFrame.getTankList().remove(this);
             tankFrame.getBlastList().add(new Blast(this.x, this.y, tankFrame));
         }
         if (GroupEnum.PLAYER.equals(this.group)) {
@@ -124,111 +119,123 @@ public class Tank extends AbstractGameObject {
                     break;
             }
         }
-        move();
+        getNextFrame();
     }
 
     /**
-     * 坦克匀速向指定方向移动
+     * 获取坦克下一帧图像
      */
-    private void move() {
-        if (GroupEnum.PLAYER.equals(this.group)) {
-            if (playerMoving) {
-                // 根据按下的键，向不同方向移动
-                switch (dir) {
-                    case UP:
-                        upward();
-                        break;
-                    case LEFT:
-                        leftward();
-                        break;
-                    case DOWN:
-                        downward();
-                        break;
-                    case RIGHT:
-                        rightward();
-                        break;
-                    default:
-                        break;
-                }
-            }
-        } else if (GroupEnum.ENEMY.equals(this.group)) {
-            if (enemyMoving) {
-                // 根据按下的键，向不同方向移动
-                switch (dir) {
-                    case UP:
-                        y -= ENEMY_TANK_SPEED;
-                        break;
-                    case LEFT:
-                        x -= ENEMY_TANK_SPEED;
-                        break;
-                    case DOWN:
-                        y += ENEMY_TANK_SPEED;
-                        break;
-                    case RIGHT:
-                        x += ENEMY_TANK_SPEED;
-                        break;
-                    default:
-                        break;
-                }
-                this.fire(tankFrame.fireStrategyFactory.getFireStrategy(GroupEnum.ENEMY));
-            }
+    private void getNextFrame() {
+        // 先处理碰撞
+        handleCollision();
+        // 再判断是否移动
+        move();
+        if (GroupEnum.ENEMY.equals(group)) {
+            fire(GroupEnum.ENEMY);
         }
         boundsCheck();
         // update rect
-        tankRect.x = this.x;
-        tankRect.y = this.y;
+        updateRect();
     }
 
     /**
-     * 向上移动
+     * 坦克与游戏物体碰撞处理
      */
-    private void upward() {
-        for (Wall wall : tankFrame.getWallList()) {
-            if (CollisionDetectorFactory.getCollisionDetectStrategy(TankWallCollisionDetector.class).collisionDetect(this, wall, x, y - PLAYER_TANK_SPEED)) {
-                playerTankCollideFlag = true;
-                return;
-            }
+    private void handleCollision() {
+        switch (dir) {
+            case UP:
+                doHandleCollision(x, y - speed);
+                break;
+            case LEFT:
+                doHandleCollision(x - speed, y);
+                break;
+            case DOWN:
+                doHandleCollision(x, y + speed);
+                break;
+            case RIGHT:
+                doHandleCollision(x + speed, y);
+                break;
+            default:
+                break;
         }
-        y -= PLAYER_TANK_SPEED;
     }
 
     /**
-     * 向下移动
+     * 坦克朝不同方向移动
      */
-    private void downward() {
-        for (Wall wall : tankFrame.getWallList()) {
-            if (CollisionDetectorFactory.getCollisionDetectStrategy(TankWallCollisionDetector.class).collisionDetect(this, wall, x, y + PLAYER_TANK_SPEED)) {
-                playerTankCollideFlag = true;
-                return;
-            }
+    private void move() {
+        if (!moveFlag) {
+            return;
         }
-        y += PLAYER_TANK_SPEED;
+        switch (dir) {
+            case UP:
+                y -= speed;
+                break;
+            case LEFT:
+                x -= speed;
+                break;
+            case DOWN:
+                y += speed;
+                break;
+            case RIGHT:
+                x += speed;
+                break;
+            default:
+                break;
+        }
     }
 
     /**
-     * 向左移动
+     * 处理坦克与游戏物体碰撞
+     * @param x
+     * @param y
      */
-    private void leftward() {
+    private void doHandleCollision(int x, int y) {
         for (Wall wall : tankFrame.getWallList()) {
-            if (CollisionDetectorFactory.getCollisionDetectStrategy(TankWallCollisionDetector.class).collisionDetect(this, wall, x - PLAYER_TANK_SPEED, y)) {
-                playerTankCollideFlag = true;
+            if (CollisionDetectorFactory.getCollisionDetectStrategy(TankWallCollisionDetector.class).collisionDetect(this, wall, x, y)) {
+                moveFlag = false;
                 return;
             }
         }
-        x -= PLAYER_TANK_SPEED;
+        for (Tank tank : tankFrame.getTankList()) {
+            // 坦克不能和自己进行碰撞检测，否则会出现坦克无法移动的bug
+            if (!this.equals(tank)) {
+                if (CollisionDetectorFactory.getCollisionDetectStrategy(TankTankCollisionDetector.class).collisionDetect(this, tank, x, y)) {
+                    stopMoving(tank);
+                    return;
+                }
+                if (GroupEnum.ENEMY.equals(tank.getGroup())) {
+                    tank.moveFlag = true;
+                }
+            }
+        }
     }
 
     /**
-     * 向右移动
+     * 坦克回退一步
+     * @param tank
      */
-    private void rightward() {
-        for (Wall wall : tankFrame.getWallList()) {
-            if (CollisionDetectorFactory.getCollisionDetectStrategy(TankWallCollisionDetector.class).collisionDetect(this, wall, x + PLAYER_TANK_SPEED, y)) {
-                playerTankCollideFlag = true;
-                return;
+    private void stopMoving(Tank tank) {
+        if (group.equals(tank.getGroup())) {
+            // 都是玩家坦克
+            if (GroupEnum.PLAYER.equals(group)) {
+                // TODO:当有两个玩家时，再处理
+
+            } else { // 都是敌方坦克
+                // 两坦克都掉头
+                setTankCounterDir(dir);
+            }
+        } else {
+            // this是玩家坦克，tank是敌方坦克
+            if (GroupEnum.PLAYER.equals(group)) {
+                // 玩家坦克停止前进
+                moveFlag = false;
+                tank.moveFlag = false;
+            } else { // this是敌方坦克，tank是玩家坦克
+                // 敌方坦克停止前进
+                moveFlag = false;
             }
         }
-        x += PLAYER_TANK_SPEED;
     }
 
     /**
@@ -250,6 +257,14 @@ public class Tank extends AbstractGameObject {
     }
 
     /**
+     * 更新坦克轮廓坐标
+     */
+    private void updateRect() {
+        tankRect.x = this.x;
+        tankRect.y = this.y;
+    }
+
+    /**
      * 设置敌人随机方向
      */
     public void setEnemyTankDir() {
@@ -257,10 +272,32 @@ public class Tank extends AbstractGameObject {
     }
 
     /**
+     * 设置坦克当前相反方向
+     */
+    public void setTankCounterDir(DirectionEnum oldDir) {
+        switch (oldDir) {
+            case UP:
+                dir = DirectionEnum.DOWN;
+                break;
+            case LEFT:
+                dir = DirectionEnum.RIGHT;
+                break;
+            case DOWN:
+                dir = DirectionEnum.UP;
+                break;
+            case RIGHT:
+                dir = DirectionEnum.LEFT;
+                break;
+            default:
+                break;
+        }
+    }
+
+    /**
      * 坦克发射一枚子弹
      */
-    public void fire(FireStrategy fireStrategy) {
-        fireStrategy.fire(this);
+    public void fire(GroupEnum group) {
+        fireStrategyFactory.getFireStrategy(group).fire(this);
     }
 
     /**

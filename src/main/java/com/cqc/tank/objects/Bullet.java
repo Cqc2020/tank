@@ -155,7 +155,9 @@ public class Bullet extends AbstractGameObject {
             }
             if (bulletRect.intersects(tank.getTankRect())) {
                 this.die();
-                tank.die();
+                if (!tank.getGroup().equals(GroupEnum.PLAYER)) {
+                    tank.die();
+                }
             }
         }
         if (obj instanceof Bullet) {

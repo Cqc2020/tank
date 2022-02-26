@@ -2,10 +2,10 @@ package com.cqc.tank.factory;
 
 import com.cqc.tank.config.TankWarConfiguration;
 import com.cqc.tank.entity.enums.GroupEnum;
-import com.cqc.tank.strategy.DefaultFireStrategy;
-import com.cqc.tank.strategy.FireStrategy;
-import com.cqc.tank.strategy.FourDirFireStrategy;
-import com.cqc.tank.strategy.RandomDirFireStrategy;
+import com.cqc.tank.strategy.fire.DefaultFireStrategy;
+import com.cqc.tank.strategy.fire.FireStrategy;
+import com.cqc.tank.strategy.fire.FourDirFireStrategy;
+import com.cqc.tank.strategy.fire.RandomDirFireStrategy;
 
 /**
  * @author Cqc on 2022/2/17 10:55 上午

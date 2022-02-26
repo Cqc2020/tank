@@ -1,10 +1,10 @@
-package com.cqc.tank.util;
+package com.cqc.tank.strategy.collide;
 
 /**
  * @author Cqc
  * @date 2022/2/20
  */
-public class TankBulletCollisionDetector implements CollisionDetector {
+public class BulletWallCollisionDetector implements CollisionDetector {
 
     @Override
     public boolean collisionDetect(Object o1, Object o2, int x, int y) {

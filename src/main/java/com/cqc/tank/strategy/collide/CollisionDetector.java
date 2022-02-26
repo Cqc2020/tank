@@ -1,4 +1,4 @@
-package com.cqc.tank.util;
+package com.cqc.tank.strategy.collide;
 
 /**
  * 碰撞检测器

@@ -1,4 +1,4 @@
-package com.cqc.tank.strategy;
+package com.cqc.tank.strategy.fire;
 
 import com.cqc.tank.objects.Tank;
 

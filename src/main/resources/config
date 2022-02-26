@@ -1,5 +1,9 @@
 # InitialTankCount
-initialTankCount=10
+initialEnemyTankCount=6
+
+# Tank Speed
+playerTankSpeed=4
+enemyTankSpeed=1
 
 # fire level
 playerLevel=2

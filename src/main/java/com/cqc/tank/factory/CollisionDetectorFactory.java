@@ -1,6 +1,6 @@
 package com.cqc.tank.factory;
 
-import com.cqc.tank.util.CollisionDetector;
+import com.cqc.tank.strategy.collide.CollisionDetector;
 
 /**
  * 碰撞检测器工厂

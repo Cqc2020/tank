@@ -2,7 +2,6 @@ package com.cqc.tank;
 
 import com.cqc.tank.entity.enums.DirectionEnum;
 import com.cqc.tank.entity.enums.GroupEnum;
-import com.cqc.tank.factory.FireStrategyFactory;
 import com.cqc.tank.objects.Blast;
 import com.cqc.tank.objects.Bullet;
 import com.cqc.tank.objects.Tank;
@@ -20,27 +19,37 @@ import java.util.List;
  * @author Cqc on 2022/2/11 11:26 下午
  */
 public class TankFrame extends Frame {
+    /**
+     * 游戏窗体宽度
+     */
     public static final int GAME_WIDTH = 800;
-
+    /**
+     * 游戏窗体高度
+     */
     public static final int GAME_HEIGHT = 600;
-
+    /**
+     * 玩家子弹集合
+     */
     private List<Bullet> playerBulletList = new ArrayList<>();
-
+    /**
+     * 墙体集合
+     */
     private List<Wall> wallList = new ArrayList<>();
-
-    private Tank p1Tank = new Tank(500, 500, DirectionEnum.UP, GroupEnum.PLAYER, this);
-
-    private List<Tank> enemyTankList = new ArrayList<>();
-
+    /**
+     * 坦克集合
+     */
+    private List<Tank> tankList = new ArrayList<>();
+    /**
+     * 爆炸集合
+     */
     private List<Blast> blastList = new ArrayList<>();
-
-    public FireStrategyFactory fireStrategyFactory = new FireStrategyFactory();
 
     {
         wallList.add(new Wall(0, 200, this));
         wallList.add(new Wall(740, 400, this));
     }
 
+    // 按键反馈
     boolean bU = false;
     boolean bL = false;
     boolean bD = false;
@@ -72,12 +81,12 @@ public class TankFrame extends Frame {
                         bR = true;
                         break;
                     case KeyEvent.VK_J:
-                        p1Tank.fire(fireStrategyFactory.getFireStrategy(GroupEnum.PLAYER));
+                        getPlayerTank().fire(GroupEnum.PLAYER);
                         break;
                     default:
                         break;
                 }
-                setDirection();
+                setDirection(getPlayerTank());
             }
 
             @Override
@@ -99,7 +108,7 @@ public class TankFrame extends Frame {
                     default:
                         break;
                 }
-                setDirection();
+                setDirection(getPlayerTank());
             }
         });
 
@@ -143,13 +152,11 @@ public class TankFrame extends Frame {
         Color color = g.getColor();
         g.setColor(Color.WHITE);
         g.drawString("子弹数量：" + playerBulletList.size(), 10, 60);
-        g.drawString("敌人数量：" + enemyTankList.size(), 10, 80);
+        g.drawString("敌人数量：" + tankList.size(), 10, 80);
         g.setColor(color);
-        // 画出玩家1坦克
-        p1Tank.paint(g);
-        // 画出敌方坦克
-        for (int i = 0; i < enemyTankList.size(); i++) {
-            enemyTankList.get(i).paint(g);
+        // 画出所有坦克
+        for (int i = 0; i < tankList.size(); i++) {
+            tankList.get(i).paint(g);
         }
         // 画出子弹
         for (int i = 0; i < playerBulletList.size(); i++) {
@@ -165,8 +172,8 @@ public class TankFrame extends Frame {
         }
         // 子弹与坦克的碰撞检测
         for (int i = 0; i < playerBulletList.size(); i++) {
-            for (int j = 0; j < enemyTankList.size(); j++) {
-                playerBulletList.get(i).collideWith(enemyTankList.get(j));
+            for (int j = 0; j < tankList.size(); j++) {
+                playerBulletList.get(i).collideWith(tankList.get(j));
             }
         }
     }
@@ -174,11 +181,11 @@ public class TankFrame extends Frame {
     /**
      * 设置坦克方向
      */
-    public void setDirection() {
+    public void setDirection(Tank p1Tank) {
         if (!bU && !bL && !bD && !bR) {
-            p1Tank.setPlayerMoving(false);
+            p1Tank.setMoveFlag(false);
         } else {
-            p1Tank.setPlayerMoving(true);
+            p1Tank.setMoveFlag(true);
             if (bU) {
                 p1Tank.setDir(DirectionEnum.UP);
             }
@@ -194,6 +201,20 @@ public class TankFrame extends Frame {
         }
     }
 
+    public Tank getPlayerTank() {
+        // 取出玩家坦克
+        Tank tank = null;
+        for (int i = 0; i < tankList.size(); i++) {
+            Tank aTank = tankList.get(i);
+            if (aTank != null) {
+                if (aTank.getGroup().equals(GroupEnum.PLAYER)) {
+                    tank = aTank;
+                }
+            }
+        }
+        return tank;
+    }
+
     public List<Bullet> getPlayerBulletList() {
         return playerBulletList;
     }
@@ -202,12 +223,12 @@ public class TankFrame extends Frame {
         this.playerBulletList = playerBulletList;
     }
 
-    public List<Tank> getEnemyTankList() {
-        return enemyTankList;
+    public List<Tank> getTankList() {
+        return tankList;
     }
 
-    public void setEnemyTankList(List<Tank> enemyTankList) {
-        this.enemyTankList = enemyTankList;
+    public void setTankList(List<Tank> tankList) {
+        this.tankList = tankList;
     }
 
     public List<Blast> getBlastList() {
