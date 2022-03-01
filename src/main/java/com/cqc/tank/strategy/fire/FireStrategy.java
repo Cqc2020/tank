@@ -1,6 +1,6 @@
 package com.cqc.tank.strategy.fire;
 
-import com.cqc.tank.objects.Tank;
+import com.cqc.tank.model.Tank;
 
 /**
  * 开火策略

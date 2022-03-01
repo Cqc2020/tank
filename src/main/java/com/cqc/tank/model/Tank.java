@@ -1,5 +1,6 @@
-package com.cqc.tank.objects;
+package com.cqc.tank.model;
 
+import com.cqc.tank.frame.GamePanel;
 import com.cqc.tank.frame.TankFrame;
 import com.cqc.tank.config.ResourceMgr;
 import com.cqc.tank.entity.enums.DirectionEnum;
@@ -20,7 +21,6 @@ import java.util.Random;
  */
 @Data
 public class Tank extends AbstractGameObject {
-
     /**
      * 坦克移动方向
      */
@@ -36,7 +36,7 @@ public class Tank extends AbstractGameObject {
     /**
      * 坦克窗口
      */
-    private TankFrame tankFrame;
+    private GamePanel gamePanel;
     /**
      * 坦克存活状态
      */
@@ -58,12 +58,12 @@ public class Tank extends AbstractGameObject {
      */
     private FireStrategyFactory fireStrategyFactory = new FireStrategyFactory();
 
-    public Tank(int x, int y, DirectionEnum dir, GroupEnum group, TankFrame tankFrame, int speed, boolean moveFlag) {
+    public Tank(int x, int y, DirectionEnum dir, GroupEnum group, GamePanel gamePanel, int speed, boolean moveFlag) {
         this.x = x;
         this.y = y;
         this.dir = dir;
         this.group = group;
-        this.tankFrame = tankFrame;
+        this.gamePanel = gamePanel;
         this.speed = speed;
         this.moveFlag = moveFlag;
 
@@ -81,8 +81,8 @@ public class Tank extends AbstractGameObject {
     @Override
     public void paint(Graphics g) {
         if (!alive) {
-            tankFrame.getTankList().remove(this);
-            tankFrame.getBlastList().add(new Blast(this.x, this.y, tankFrame));
+            gamePanel.getTankList().remove(this);
+            gamePanel.getBlastList().add(new Blast(this.x, this.y, gamePanel));
         }
         if (GroupEnum.PLAYER.equals(this.group)) {
             switch (dir) {
@@ -192,13 +192,13 @@ public class Tank extends AbstractGameObject {
      */
     private void doHandleCollision(int x, int y) {
         // 坦克撞墙处理
-        for (Wall wall : tankFrame.getWallList()) {
+        for (Wall wall : gamePanel.getWallList()) {
             if (CollisionDetectorFactory.getCollisionDetectStrategy(TankWallCollisionDetector.class).collisionDetect(this, wall, x, y)) {
                 moveFlag = false;
                 return;
             }
         }
-        for (Tank tank : tankFrame.getTankList()) {
+        for (Tank tank : gamePanel.getTankList()) {
             // 坦克不能和自己进行碰撞检测，否则会出现坦克无法移动的bug
             if (!this.equals(tank)) {
                 if (CollisionDetectorFactory.getCollisionDetectStrategy(TankTankCollisionDetector.class).collisionDetect(this, tank, x, y)) {

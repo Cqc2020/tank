@@ -1,6 +1,6 @@
 package com.cqc.tank.strategy.collide;
 
-import com.cqc.tank.objects.Tank;
+import com.cqc.tank.model.Tank;
 
 import java.awt.*;
 

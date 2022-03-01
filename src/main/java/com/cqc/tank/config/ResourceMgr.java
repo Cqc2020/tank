@@ -11,7 +11,9 @@ import java.util.Objects;
 public class ResourceMgr {
     /** 玩家坦克图片 */
     public static BufferedImage playerTankU, playerTankD, playerTankL, playerTankR;
-    /** 敌人坦克图片 */
+    /**
+     * 敌人坦克图片
+     */
     public static BufferedImage enemyTankU, enemyTankD, enemyTankL, enemyTankR;
     /** 子弹图片 */
     public static BufferedImage bulletU, bulletD, bulletL, bulletR;
@@ -45,6 +47,18 @@ public class ResourceMgr {
      * 水图片
      */
     public static BufferedImage water;
+    /**
+     * 背景图片
+     */
+    public static BufferedImage background;
+    /**
+     * 游戏模式选择指针坦克
+     */
+    public static BufferedImage selectTank;
+    /**
+     * 关卡进入前画面
+     */
+    public static BufferedImage stagePrepare;
 
     static {
         try {
@@ -77,6 +91,12 @@ public class ResourceMgr {
             grass = ImageIO.read(Objects.requireNonNull(ResourceMgr.class.getClassLoader().getResourceAsStream("image/grass.png")));
 
             water = ImageIO.read(Objects.requireNonNull(ResourceMgr.class.getClassLoader().getResourceAsStream("image/water.gif")));
+
+            background = ImageIO.read(Objects.requireNonNull(ResourceMgr.class.getClassLoader().getResourceAsStream("image/background.jpg")));
+
+            selectTank = ImageIO.read(Objects.requireNonNull(ResourceMgr.class.getClassLoader().getResourceAsStream("image/selecttank.gif")));
+
+            stagePrepare = ImageIO.read(Objects.requireNonNull(ResourceMgr.class.getClassLoader().getResourceAsStream("image/stageBg.jpg")));
         } catch (IOException e) {
             e.printStackTrace();
         }

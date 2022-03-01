@@ -4,7 +4,7 @@ package com.cqc.tank.entity.enums;
  * @author Cqc
  * @date 2022/2/26
  */
-public enum WallTypeEnum {
+public enum MapObjEnum {
     /**
      * 小红墙体图片
      */
@@ -23,5 +23,17 @@ public enum WallTypeEnum {
     /**
      * 大加强白墙体图片
      */
-    STEELS;
+    STEELS,
+
+    /**
+     * 草地图片
+     */
+    GRASS,
+
+    /**
+     * 水图片
+     */
+    WATER
+
+    ;
 }

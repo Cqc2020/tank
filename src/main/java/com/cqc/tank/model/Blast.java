@@ -1,8 +1,8 @@
-package com.cqc.tank.objects;
+package com.cqc.tank.model;
 
 import com.cqc.tank.config.Audio;
 import com.cqc.tank.config.ResourceMgr;
-import com.cqc.tank.frame.TankFrame;
+import com.cqc.tank.frame.GamePanel;
 import lombok.Data;
 
 import java.awt.*;
@@ -13,15 +13,15 @@ import java.awt.*;
  */
 @Data
 public class Blast extends AbstractGameObject {
-    private TankFrame tankFrame;
+    private GamePanel gamePanel;
     private boolean alive = true;
     private static int WIDTH = ResourceMgr.blasts[0].getWidth();
     private static int HEIGHT = ResourceMgr.blasts[0].getHeight();
 
-    public Blast(int x, int y, TankFrame tankFrame) {
+    public Blast(int x, int y, GamePanel gamePanel) {
         this.x = x;
         this.y = y;
-        this.tankFrame = tankFrame;
+        this.gamePanel = gamePanel;
     }
 
     /**
@@ -31,7 +31,7 @@ public class Blast extends AbstractGameObject {
     @Override
     public void paint(Graphics g) {
         if (!alive) {
-            tankFrame.getBlastList().remove(this);
+            gamePanel.getBlastList().remove(this);
         }
         // 添加背景音乐
         Audio.playBgm();

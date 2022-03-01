@@ -1,8 +1,8 @@
 package com.cqc.tank.strategy.fire;
 
 import com.cqc.tank.entity.enums.DirectionEnum;
-import com.cqc.tank.objects.Bullet;
-import com.cqc.tank.objects.Tank;
+import com.cqc.tank.model.Bullet;
+import com.cqc.tank.model.Tank;
 
 /**
  * @author Cqc on 2022/2/17 9:59 下午
@@ -35,7 +35,7 @@ public class FourDirFireStrategy implements FireStrategy{
         }
         for (DirectionEnum dir : DirectionEnum.values()) {
             // 开火：坦克对象在窗口中生成一个子弹对象
-            tank.getTankFrame().getPlayerBulletList().add(new Bullet(bX, bY, dir, tank.getGroup(), tank.getTankFrame()));
+            tank.getGamePanel().getPlayerBulletList().add(new Bullet(bX, bY, dir, tank.getGroup(), tank.getGamePanel()));
         }
     }
 

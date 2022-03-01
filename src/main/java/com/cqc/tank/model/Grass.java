@@ -1,6 +1,5 @@
-package com.cqc.tank.objects;
+package com.cqc.tank.model;
 
-import com.cqc.tank.frame.TankFrame;
 import com.cqc.tank.config.ResourceMgr;
 
 import java.awt.*;
@@ -10,15 +9,10 @@ import java.awt.*;
  * @date 2022/2/26
  */
 public class Grass extends AbstractGameObject {
-    /**
-     * 坦克窗口
-     */
-    private TankFrame tankFrame;
 
-    public Grass(int x, int y, TankFrame tankFrame) {
+    public Grass(int x, int y) {
         this.x = x;
         this.y = y;
-        this.tankFrame = tankFrame;
     }
 
     @Override

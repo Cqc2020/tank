@@ -1,4 +1,4 @@
-package com.cqc.tank.objects;
+package com.cqc.tank.model;
 
 import lombok.Data;
 

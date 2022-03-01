@@ -1,24 +1,28 @@
 package com.cqc.tank.frame;
 
 import com.cqc.tank.config.ResourceMgr;
+import com.cqc.tank.config.TankWarConfiguration;
 import com.cqc.tank.entity.enums.DirectionEnum;
 import com.cqc.tank.entity.enums.GroupEnum;
 import com.cqc.tank.entity.enums.MapObjEnum;
 import com.cqc.tank.model.*;
+import lombok.Data;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author Cqc on 2022/2/11 11:26 下午
+ * 游戏界面面板
+ * @author Cqc
+ * @date 2022/2/27
  */
-public class TankFrame extends JFrame {
+@Data
+public class GamePanel extends JPanel {
+    private MainFrame mainFrame;
     /**
      * 游戏窗体宽度
      */
@@ -31,6 +35,10 @@ public class TankFrame extends JFrame {
      * 基地老鹰
      */
     private Eagle eagle;
+    /**
+     * 游戏界面键盘事件监听适配器
+     */
+    private GamePanelKeyAdapter gamePanelKeyAdapter;
     /**
      * 玩家子弹集合
      */
@@ -55,13 +63,22 @@ public class TankFrame extends JFrame {
      * 水块集合
      */
     private List<Water> waterList = new ArrayList<>();
+    Integer initialEnemyTankCount = Integer.valueOf(TankWarConfiguration.getInstance().get("initialEnemyTankCount").toString());
+    Integer playerTankSpeed = Integer.valueOf(TankWarConfiguration.getInstance().get("playerTankSpeed").toString());
+    Integer enemyTankSpeed = Integer.valueOf(TankWarConfiguration.getInstance().get("enemyTankSpeed").toString());
 
     {
+        // 初始化玩家坦克
+        tankList.add(new Tank(500, 500, DirectionEnum.UP, GroupEnum.PLAYER, this, playerTankSpeed, false));
+        // 初始化敌方坦克
+        for (int i = 0; i < initialEnemyTankCount; i++) {
+            tankList.add(new Tank(150 + i * 100, 150, DirectionEnum.DOWN, GroupEnum.ENEMY, this, enemyTankSpeed, true));
+        }
         wallList.add(new Wall(0, 200, MapObjEnum.WALLS));
         wallList.add(new Wall(GAME_WIDTH - ResourceMgr.walls.getWidth(), GAME_HEIGHT - 200, MapObjEnum.WALLS));
-        wallList.add(new Wall((GAME_WIDTH)/2 - ResourceMgr.eagle.getWidth() - ResourceMgr.wall.getWidth(), GAME_HEIGHT - ResourceMgr.wall.getHeight(), MapObjEnum.WALL));
+        wallList.add(new Wall((GAME_WIDTH) / 2 - ResourceMgr.eagle.getWidth() - ResourceMgr.wall.getWidth(), GAME_HEIGHT - ResourceMgr.wall.getHeight(), MapObjEnum.WALL));
         wallList.add(new Wall(300, 300, MapObjEnum.STEEL));
-        eagle = new Eagle((GAME_WIDTH)/2 - ResourceMgr.eagle.getWidth(), GAME_HEIGHT - ResourceMgr.eagle.getHeight());
+        eagle = new Eagle((GAME_WIDTH) / 2 - ResourceMgr.eagle.getWidth(), GAME_HEIGHT - ResourceMgr.eagle.getHeight());
         grassList.add(new Grass(450, 256));
         waterList.add(new Water(667, 400));
     }
@@ -72,70 +89,67 @@ public class TankFrame extends JFrame {
     boolean bD = false;
     boolean bR = false;
 
-    public TankFrame() throws HeadlessException {
-        setVisible(true);
-        setSize(GAME_WIDTH, GAME_HEIGHT);
-        setResizable(false);
-        setTitle("坦克大战");
+    public GamePanel(MainFrame mainFrame) throws HeadlessException {
+        this.mainFrame = mainFrame;
+        addKeyListener();
+    }
 
-        // 按键事件监听器
-        this.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                int keyCode = e.getKeyCode();
-                // 根据按下的键，向不同方向移动
-                switch (keyCode) {
-                    case KeyEvent.VK_W:
-                        bU = true;
-                        break;
-                    case KeyEvent.VK_A:
-                        bL = true;
-                        break;
-                    case KeyEvent.VK_S:
-                        bD = true;
-                        break;
-                    case KeyEvent.VK_D:
-                        bR = true;
-                        break;
-                    case KeyEvent.VK_J:
-                        getPlayerTank().fire(GroupEnum.PLAYER);
-                        break;
-                    default:
-                        break;
-                }
-                setDirection(getPlayerTank());
-            }
+    private void addKeyListener() {
+        gamePanelKeyAdapter = new GamePanelKeyAdapter();
+        mainFrame.addKeyListener(gamePanelKeyAdapter);
+    }
 
-            @Override
-            public void keyReleased(KeyEvent e) {
-                int keyCode = e.getKeyCode();
-                switch (keyCode) {
-                    case KeyEvent.VK_W:
-                        bU = false;
-                        break;
-                    case KeyEvent.VK_A:
-                        bL = false;
-                        break;
-                    case KeyEvent.VK_S:
-                        bD = false;
-                        break;
-                    case KeyEvent.VK_D:
-                        bR = false;
-                        break;
-                    default:
-                        break;
-                }
-                setDirection(getPlayerTank());
+    /**
+     * 键盘监听适配器
+     */
+    class GamePanelKeyAdapter extends KeyAdapter {
+        @Override
+        public void keyPressed(KeyEvent e) {
+            int keyCode = e.getKeyCode();
+            // 根据按下的键，向不同方向移动
+            switch (keyCode) {
+                case KeyEvent.VK_W:
+                    bU = true;
+                    break;
+                case KeyEvent.VK_A:
+                    bL = true;
+                    break;
+                case KeyEvent.VK_S:
+                    bD = true;
+                    break;
+                case KeyEvent.VK_D:
+                    bR = true;
+                    break;
+                case KeyEvent.VK_J:
+                    getPlayerTank().fire(GroupEnum.PLAYER);
+                    break;
+                default:
+                    break;
             }
-        });
+            setDirection(getPlayerTank());
+        }
 
-        // 关闭游戏窗口
-        addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing (WindowEvent e){
-                System.exit(0);
+        @Override
+        public void keyReleased(KeyEvent e) {
+            int keyCode = e.getKeyCode();
+            switch (keyCode) {
+                case KeyEvent.VK_W:
+                    bU = false;
+                    break;
+                case KeyEvent.VK_A:
+                    bL = false;
+                    break;
+                case KeyEvent.VK_S:
+                    bD = false;
+                    break;
+                case KeyEvent.VK_D:
+                    bR = false;
+                    break;
+                default:
+                    break;
             }
-        });
+            setDirection(getPlayerTank());
+        }
     }
 
     /*
@@ -242,27 +256,4 @@ public class TankFrame extends JFrame {
         return tank;
     }
 
-    public List<Bullet> getPlayerBulletList() {
-        return playerBulletList;
-    }
-
-    public void setPlayerBulletList(List<Bullet> playerBulletList) {
-        this.playerBulletList = playerBulletList;
-    }
-
-    public List<Tank> getTankList() {
-        return tankList;
-    }
-
-    public void setTankList(List<Tank> tankList) {
-        this.tankList = tankList;
-    }
-
-    public List<Blast> getBlastList() {
-        return blastList;
-    }
-
-    public List<Wall> getWallList() {
-        return wallList;
-    }
 }

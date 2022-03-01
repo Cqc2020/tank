@@ -1,7 +1,7 @@
 package com.cqc.tank.strategy.fire;
 
-import com.cqc.tank.objects.Bullet;
-import com.cqc.tank.objects.Tank;
+import com.cqc.tank.model.Bullet;
+import com.cqc.tank.model.Tank;
 
 /**
  * 默认开火策略
@@ -34,6 +34,6 @@ public class DefaultFireStrategy implements FireStrategy {
                 break;
         }
         // 开火：坦克对象在窗口中生成一个子弹对象
-        tank.getTankFrame().getPlayerBulletList().add(new Bullet(bX, bY, tank.getDir(), tank.getGroup(), tank.getTankFrame()));
+        tank.getGamePanel().getPlayerBulletList().add(new Bullet(bX, bY, tank.getDir(), tank.getGroup(), tank.getGamePanel()));
     }
 }

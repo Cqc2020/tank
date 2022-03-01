@@ -1,6 +1,7 @@
-package com.cqc.tank.objects;
+package com.cqc.tank.model;
 
 import com.cqc.tank.config.ResourceMgr;
+import com.cqc.tank.frame.GamePanel;
 import com.cqc.tank.frame.TankFrame;
 import com.cqc.tank.entity.enums.DirectionEnum;
 import com.cqc.tank.entity.enums.GroupEnum;
@@ -15,7 +16,6 @@ import java.awt.*;
  */
 @Data
 public class Bullet extends AbstractGameObject {
-
     /**
      * 子弹移动方向
      */
@@ -27,7 +27,7 @@ public class Bullet extends AbstractGameObject {
     /**
      * 坦克窗口
      */
-    private TankFrame tankFrame;
+    private GamePanel gamePanel;
     /**
      * 子弹存活状态
      */
@@ -45,13 +45,12 @@ public class Bullet extends AbstractGameObject {
      */
     private static final int ENEMY_BULLET_SPEED = 5;
 
-
-    public Bullet(int x, int y, DirectionEnum dir, GroupEnum goup, TankFrame tankFrame) {
+    public Bullet(int x, int y, DirectionEnum dir, GroupEnum goup, GamePanel gamePanel) {
         this.x = x;
         this.y = y;
         this.dir = dir;
         this.group = goup;
-        this.tankFrame = tankFrame;
+        this.gamePanel = gamePanel;
 
         bulletRect.x = this.x;
         bulletRect.y = this.y;
@@ -67,7 +66,7 @@ public class Bullet extends AbstractGameObject {
     @Override
     public void paint(Graphics g) {
         if (!alive) {
-            tankFrame.getPlayerBulletList().remove(this);
+            gamePanel.getPlayerBulletList().remove(this);
         }
         switch (dir) {
             case UP:
