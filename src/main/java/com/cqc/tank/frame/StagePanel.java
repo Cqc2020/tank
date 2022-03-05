@@ -1,6 +1,6 @@
 package com.cqc.tank.frame;
 
-import com.cqc.tank.config.ResourceMgr;
+import com.cqc.tank.util.ImageUtil;
 import lombok.Data;
 
 import javax.swing.*;
@@ -40,7 +40,7 @@ public class StagePanel extends JPanel {
 
     @Override
     public void paint(Graphics g) {
-        g.drawImage(ResourceMgr.stagePrepare, 0, 0, getWidth(), getHeight(), this);
+        g.drawImage(ImageUtil.stagePrepare, 0, 0, getWidth(), getHeight(), this);
         g.setColor(Color.BLACK);
         g.setFont(new Font("黑体", Font.BOLD, 100));
         g.drawString("STAGE 1", getWidth() / 2 - 220, getHeight() / 2 - 20);

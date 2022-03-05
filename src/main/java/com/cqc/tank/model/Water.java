@@ -1,6 +1,7 @@
 package com.cqc.tank.model;
 
-import com.cqc.tank.config.ResourceMgr;
+import com.cqc.tank.util.ImageUtil;
+import com.cqc.tank.entity.enums.MapObjEnum;
 
 import java.awt.*;
 
@@ -8,15 +9,31 @@ import java.awt.*;
  * @author Cqc
  * @date 2022/2/26
  */
-public class Water extends AbstractGameObject {
+public class Water extends GameObject {
 
-    public Water(int x, int y) {
+    public Water(int x, int y, MapObjEnum mapObjEnum) {
         this.x = x;
         this.y = y;
+        this.mapObjEnum = mapObjEnum;
+
+        objRect = new Rectangle();
+        objRect.x = this.x;
+        objRect.y = this.y;
+        objRect.width = ImageUtil.water.getWidth();
+        objRect.height = ImageUtil.water.getHeight();
     }
 
     @Override
     public void paint(Graphics g) {
-        g.drawImage(ResourceMgr.water, x, y, null);
+        g.drawImage(ImageUtil.water, x, y, null);
+        updateRect();
+    }
+
+    /**
+     * 更新坦水轮廓坐标
+     */
+    private void updateRect() {
+        objRect.x = this.x;
+        objRect.y = this.y;
     }
 }

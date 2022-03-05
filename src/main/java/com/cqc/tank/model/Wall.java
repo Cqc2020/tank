@@ -1,8 +1,9 @@
 package com.cqc.tank.model;
 
-import com.cqc.tank.config.ResourceMgr;
+import com.cqc.tank.util.ImageUtil;
 import com.cqc.tank.entity.enums.MapObjEnum;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.awt.*;
 
@@ -13,38 +14,69 @@ import java.awt.*;
  * @date 2022/2/20
  */
 @Data
-public class Wall extends AbstractGameObject {
-    private Rectangle wallRect = new Rectangle();
-    private MapObjEnum type;
+@EqualsAndHashCode(callSuper = true)
+public class Wall extends GameObject {
     private boolean alive = true;
 
-    public Wall(int x, int y, MapObjEnum type) {
+    public Wall(int x, int y, MapObjEnum mapObjEnum) {
         this.x = x;
         this.y = y;
-        this.type = type;
+        this.mapObjEnum = mapObjEnum;
+        setObjRectProfile(mapObjEnum);
+    }
 
-        wallRect.x = this.x;
-        wallRect.y = this.y;
-        wallRect.width = ResourceMgr.walls.getWidth();
-        wallRect.height = ResourceMgr.walls.getHeight();
+    private void setObjRectProfile(MapObjEnum mapObjEnum) {
+        objRect = new Rectangle();
+        objRect.x = this.x;
+        objRect.y = this.y;
+        switch (mapObjEnum) {
+            case WALL:
+                this.width = objRect.width = ImageUtil.wall.getWidth();
+                this.height = objRect.height = ImageUtil.wall.getHeight();
+                break;
+            case WALLS:
+                objRect.width = ImageUtil.walls.getWidth();
+                objRect.height = ImageUtil.walls.getHeight();
+                break;
+            case STEEL:
+                objRect.width = ImageUtil.steel.getWidth();
+                objRect.height = ImageUtil.steel.getHeight();
+                break;
+            case STEELS:
+                objRect.width = ImageUtil.steels.getWidth();
+                objRect.height = ImageUtil.steels.getHeight();
+                break;
+            default:
+        }
     }
 
     @Override
     public void paint(Graphics g) {
-        switch (type) {
+        switch (mapObjEnum) {
             case WALL:
-                g.drawImage(ResourceMgr.wall, x, y, null);
+                g.drawImage(ImageUtil.wall, x, y, null);
                 break;
             case WALLS:
-                g.drawImage(ResourceMgr.walls, x, y, null);
+                g.drawImage(ImageUtil.walls, x, y, null);
                 break;
             case STEEL:
-                g.drawImage(ResourceMgr.steel, x, y, null);
+                g.drawImage(ImageUtil.steel, x, y, null);
+                break;
+            case STEELS:
+                g.drawImage(ImageUtil.steels, x, y, null);
                 break;
             default:
                 break;
         }
+        updateRect();
+    }
 
+    /**
+     * 更新墙体轮廓坐标
+     */
+    private void updateRect() {
+        objRect.x = this.x;
+        objRect.y = this.y;
     }
 
     /**
@@ -53,4 +85,5 @@ public class Wall extends AbstractGameObject {
     public void die() {
         this.alive = false;
     }
+
 }

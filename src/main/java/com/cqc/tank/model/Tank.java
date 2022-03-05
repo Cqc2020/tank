@@ -2,7 +2,7 @@ package com.cqc.tank.model;
 
 import com.cqc.tank.frame.GamePanel;
 import com.cqc.tank.frame.TankFrame;
-import com.cqc.tank.config.ResourceMgr;
+import com.cqc.tank.util.ImageUtil;
 import com.cqc.tank.entity.enums.DirectionEnum;
 import com.cqc.tank.entity.enums.GroupEnum;
 import com.cqc.tank.factory.CollisionDetectorFactory;
@@ -20,7 +20,7 @@ import java.util.Random;
  * @author Cqc on 2022/2/12 9:48 上午
  */
 @Data
-public class Tank extends AbstractGameObject {
+public class Tank extends GameObject {
     /**
      * 坦克移动方向
      */
@@ -87,16 +87,16 @@ public class Tank extends AbstractGameObject {
         if (GroupEnum.PLAYER.equals(this.group)) {
             switch (dir) {
                 case UP:
-                    g.drawImage(ResourceMgr.playerTankU, x, y, null);
+                    g.drawImage(ImageUtil.playerTankU, x, y, null);
                     break;
                 case LEFT:
-                    g.drawImage(ResourceMgr.playerTankL, x, y, null);
+                    g.drawImage(ImageUtil.playerTankL, x, y, null);
                     break;
                 case DOWN:
-                    g.drawImage(ResourceMgr.playerTankD, x, y, null);
+                    g.drawImage(ImageUtil.playerTankD, x, y, null);
                     break;
                 case RIGHT:
-                    g.drawImage(ResourceMgr.playerTankR, x, y, null);
+                    g.drawImage(ImageUtil.playerTankR, x, y, null);
                     break;
                 default:
                     break;
@@ -104,16 +104,16 @@ public class Tank extends AbstractGameObject {
         } else if (GroupEnum.ENEMY.equals(this.group)) {
             switch (dir) {
                 case UP:
-                    g.drawImage(ResourceMgr.enemyTankU, x, y, null);
+                    g.drawImage(ImageUtil.enemyTankU, x, y, null);
                     break;
                 case LEFT:
-                    g.drawImage(ResourceMgr.enemyTankL, x, y, null);
+                    g.drawImage(ImageUtil.enemyTankL, x, y, null);
                     break;
                 case DOWN:
-                    g.drawImage(ResourceMgr.enemyTankD, x, y, null);
+                    g.drawImage(ImageUtil.enemyTankD, x, y, null);
                     break;
                 case RIGHT:
-                    g.drawImage(ResourceMgr.enemyTankR, x, y, null);
+                    g.drawImage(ImageUtil.enemyTankR, x, y, null);
                     break;
                 default:
                     break;
@@ -187,8 +187,8 @@ public class Tank extends AbstractGameObject {
 
     /**
      * 处理坦克与游戏物体碰撞
-     * @param x
-     * @param y
+     * @param x tank1的x
+     * @param y tank1的y
      */
     private void doHandleCollision(int x, int y) {
         // 坦克撞墙处理
@@ -317,26 +317,26 @@ public class Tank extends AbstractGameObject {
         if (GroupEnum.PLAYER.equals(this.group)) {
             switch (dir) {
                 case UP:
-                    return ResourceMgr.playerTankU.getWidth();
+                    return ImageUtil.playerTankU.getWidth();
                 case LEFT:
-                    return ResourceMgr.playerTankL.getWidth();
+                    return ImageUtil.playerTankL.getWidth();
                 case DOWN:
-                    return ResourceMgr.playerTankD.getWidth();
+                    return ImageUtil.playerTankD.getWidth();
                 case RIGHT:
-                    return ResourceMgr.playerTankR.getWidth();
+                    return ImageUtil.playerTankR.getWidth();
                 default:
                     return 0;
             }
         } else {
             switch (dir) {
                 case UP:
-                    return ResourceMgr.enemyTankU.getWidth();
+                    return ImageUtil.enemyTankU.getWidth();
                 case LEFT:
-                    return ResourceMgr.enemyTankL.getWidth();
+                    return ImageUtil.enemyTankL.getWidth();
                 case DOWN:
-                    return ResourceMgr.enemyTankD.getWidth();
+                    return ImageUtil.enemyTankD.getWidth();
                 case RIGHT:
-                    return ResourceMgr.enemyTankR.getWidth();
+                    return ImageUtil.enemyTankR.getWidth();
                 default:
                     return 0;
             }
@@ -352,26 +352,26 @@ public class Tank extends AbstractGameObject {
         if (GroupEnum.PLAYER.equals(this.group)) {
             switch (dir) {
                 case UP:
-                    return ResourceMgr.playerTankU.getHeight();
+                    return ImageUtil.playerTankU.getHeight();
                 case LEFT:
-                    return ResourceMgr.playerTankL.getHeight();
+                    return ImageUtil.playerTankL.getHeight();
                 case DOWN:
-                    return ResourceMgr.playerTankD.getHeight();
+                    return ImageUtil.playerTankD.getHeight();
                 case RIGHT:
-                    return ResourceMgr.playerTankR.getHeight();
+                    return ImageUtil.playerTankR.getHeight();
                 default:
                     return 0;
             }
         } else {
             switch (dir) {
                 case UP:
-                    return ResourceMgr.enemyTankU.getHeight();
+                    return ImageUtil.enemyTankU.getHeight();
                 case LEFT:
-                    return ResourceMgr.enemyTankL.getHeight();
+                    return ImageUtil.enemyTankL.getHeight();
                 case DOWN:
-                    return ResourceMgr.enemyTankD.getHeight();
+                    return ImageUtil.enemyTankD.getHeight();
                 case RIGHT:
-                    return ResourceMgr.enemyTankR.getHeight();
+                    return ImageUtil.enemyTankR.getHeight();
                 default:
                     return 0;
             }
@@ -386,13 +386,13 @@ public class Tank extends AbstractGameObject {
     public int getBulletWidth() {
         switch (dir) {
             case UP:
-                return ResourceMgr.bulletU.getWidth();
+                return ImageUtil.bulletU.getWidth();
             case LEFT:
-                return ResourceMgr.bulletL.getWidth();
+                return ImageUtil.bulletL.getWidth();
             case DOWN:
-                return ResourceMgr.bulletD.getWidth();
+                return ImageUtil.bulletD.getWidth();
             case RIGHT:
-                return ResourceMgr.bulletR.getWidth();
+                return ImageUtil.bulletR.getWidth();
             default:
                 return 0;
         }
@@ -406,13 +406,13 @@ public class Tank extends AbstractGameObject {
     public int getBulletHeight() {
         switch (dir) {
             case UP:
-                return ResourceMgr.bulletU.getHeight();
+                return ImageUtil.bulletU.getHeight();
             case LEFT:
-                return ResourceMgr.bulletL.getHeight();
+                return ImageUtil.bulletL.getHeight();
             case DOWN:
-                return ResourceMgr.bulletD.getHeight();
+                return ImageUtil.bulletD.getHeight();
             case RIGHT:
-                return ResourceMgr.bulletR.getHeight();
+                return ImageUtil.bulletR.getHeight();
             default:
                 return 0;
         }

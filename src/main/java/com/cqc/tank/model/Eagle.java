@@ -1,6 +1,6 @@
 package com.cqc.tank.model;
 
-import com.cqc.tank.config.ResourceMgr;
+import com.cqc.tank.util.ImageUtil;
 import lombok.Data;
 
 import java.awt.*;
@@ -10,7 +10,7 @@ import java.awt.*;
  * @date 2022/2/26
  */
 @Data
-public class Eagle extends AbstractGameObject {
+public class Eagle extends GameObject {
 
     public Eagle(int x, int y) {
         this.x = x;
@@ -19,6 +19,6 @@ public class Eagle extends AbstractGameObject {
 
     @Override
     public void paint(Graphics g) {
-        g.drawImage(ResourceMgr.eagle, x, y, null);
+        g.drawImage(ImageUtil.eagle, x, y, null);
     }
 }

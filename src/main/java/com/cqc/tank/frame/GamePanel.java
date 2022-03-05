@@ -1,6 +1,6 @@
 package com.cqc.tank.frame;
 
-import com.cqc.tank.config.ResourceMgr;
+import com.cqc.tank.util.ImageUtil;
 import com.cqc.tank.config.TankWarConfiguration;
 import com.cqc.tank.entity.enums.DirectionEnum;
 import com.cqc.tank.entity.enums.GroupEnum;
@@ -63,6 +63,7 @@ public class GamePanel extends JPanel {
      * 水块集合
      */
     private List<Water> waterList = new ArrayList<>();
+    private final List<GameObject> mapObjList = new ArrayList<>();
     Integer initialEnemyTankCount = Integer.valueOf(TankWarConfiguration.getInstance().get("initialEnemyTankCount").toString());
     Integer playerTankSpeed = Integer.valueOf(TankWarConfiguration.getInstance().get("playerTankSpeed").toString());
     Integer enemyTankSpeed = Integer.valueOf(TankWarConfiguration.getInstance().get("enemyTankSpeed").toString());
@@ -75,12 +76,12 @@ public class GamePanel extends JPanel {
             tankList.add(new Tank(150 + i * 100, 150, DirectionEnum.DOWN, GroupEnum.ENEMY, this, enemyTankSpeed, true));
         }
         wallList.add(new Wall(0, 200, MapObjEnum.WALLS));
-        wallList.add(new Wall(GAME_WIDTH - ResourceMgr.walls.getWidth(), GAME_HEIGHT - 200, MapObjEnum.WALLS));
-        wallList.add(new Wall((GAME_WIDTH) / 2 - ResourceMgr.eagle.getWidth() - ResourceMgr.wall.getWidth(), GAME_HEIGHT - ResourceMgr.wall.getHeight(), MapObjEnum.WALL));
+        wallList.add(new Wall(GAME_WIDTH - ImageUtil.walls.getWidth(), GAME_HEIGHT - 200, MapObjEnum.WALLS));
+        wallList.add(new Wall((GAME_WIDTH) / 2 - ImageUtil.eagle.getWidth() - ImageUtil.wall.getWidth(), GAME_HEIGHT - ImageUtil.wall.getHeight(), MapObjEnum.WALL));
         wallList.add(new Wall(300, 300, MapObjEnum.STEEL));
-        eagle = new Eagle((GAME_WIDTH) / 2 - ResourceMgr.eagle.getWidth(), GAME_HEIGHT - ResourceMgr.eagle.getHeight());
-        grassList.add(new Grass(450, 256));
-        waterList.add(new Water(667, 400));
+        eagle = new Eagle((GAME_WIDTH) / 2 - ImageUtil.eagle.getWidth(), GAME_HEIGHT - ImageUtil.eagle.getHeight());
+        grassList.add(new Grass(450, 256, MapObjEnum.GRASS));
+        waterList.add(new Water(667, 400, MapObjEnum.WATER));
     }
 
     // 按键反馈

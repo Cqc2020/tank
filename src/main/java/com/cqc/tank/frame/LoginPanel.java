@@ -1,6 +1,6 @@
 package com.cqc.tank.frame;
 
-import com.cqc.tank.config.ResourceMgr;
+import com.cqc.tank.util.ImageUtil;
 import com.cqc.tank.entity.enums.GamePatternEnum;
 import lombok.Data;
 
@@ -31,14 +31,14 @@ public class LoginPanel extends JPanel {
 
     @Override
     public void paint(Graphics g) {
-        g.drawImage(ResourceMgr.background, 0, 0, getWidth(), getHeight(), this);
+        g.drawImage(ImageUtil.background, 0, 0, getWidth(), getHeight(), this);
         g.setFont(new Font("黑体", Font.BOLD, 40));
         g.setColor(Color.LIGHT_GRAY);
         g.drawString("1 单人游戏模式", onePlayerX, onePlayerY);
         g.drawString("2 双人游戏模式", twoPlayerX, twoPlayerY);
         g.drawString("3 预览游戏关卡地图", previewMapX, previewMapY);
         g.drawString("4 自定义游戏关卡地图", customMapX, customMapY);
-        g.drawImage(ResourceMgr.selectTank, 240, selectTankY - 35, null);
+        g.drawImage(ImageUtil.selectTank, 240, selectTankY - 35, null);
     }
 
     /**

@@ -34,7 +34,7 @@ public class TankWallCollisionDetector implements CollisionDetector {
         int lastX = tankRect.x;
         int lastY = tankRect.y;
         tankRect.setLocation(x, y);
-        if (tankRect.intersects(wall.getWallRect())) {
+        if (tankRect.intersects(wall.getObjRect())) {
             tankRect.setLocation(lastX, lastY);
             return true;
         }

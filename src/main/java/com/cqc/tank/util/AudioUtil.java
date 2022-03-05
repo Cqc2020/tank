@@ -1,4 +1,4 @@
-package com.cqc.tank.config;
+package com.cqc.tank.util;
 
 import javax.sound.sampled.*;
 import java.io.File;
@@ -8,7 +8,7 @@ import java.io.IOException;
  * 声音类
  * @author Cqc on 2022/2/13 10:25 下午
  */
-public class Audio {
+public class AudioUtil {
 
     /**
      * 播放背景音乐

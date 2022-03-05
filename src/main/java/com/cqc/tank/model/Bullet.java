@@ -1,6 +1,6 @@
 package com.cqc.tank.model;
 
-import com.cqc.tank.config.ResourceMgr;
+import com.cqc.tank.util.ImageUtil;
 import com.cqc.tank.frame.GamePanel;
 import com.cqc.tank.frame.TankFrame;
 import com.cqc.tank.entity.enums.DirectionEnum;
@@ -15,7 +15,7 @@ import java.awt.*;
  * @author Cqc on 2022/2/12 3:01 下午
  */
 @Data
-public class Bullet extends AbstractGameObject {
+public class Bullet extends GameObject {
     /**
      * 子弹移动方向
      */
@@ -70,16 +70,16 @@ public class Bullet extends AbstractGameObject {
         }
         switch (dir) {
             case UP:
-                g.drawImage(ResourceMgr.bulletU, x, y, null);
+                g.drawImage(ImageUtil.bulletU, x, y, null);
                 break;
             case LEFT:
-                g.drawImage(ResourceMgr.bulletL, x, y, null);
+                g.drawImage(ImageUtil.bulletL, x, y, null);
                 break;
             case DOWN:
-                g.drawImage(ResourceMgr.bulletD, x, y, null);
+                g.drawImage(ImageUtil.bulletD, x, y, null);
                 break;
             case RIGHT:
-                g.drawImage(ResourceMgr.bulletR, x, y, null);
+                g.drawImage(ImageUtil.bulletR, x, y, null);
                 break;
             default:
                 break;
@@ -165,7 +165,7 @@ public class Bullet extends AbstractGameObject {
         }
         if (obj instanceof Wall) {
             Wall wall = (Wall) obj;
-            if (bulletRect.intersects(wall.getWallRect())) {
+            if (bulletRect.intersects(wall.getObjRect())) {
                 // this.die();
                 // bullet.die();
             }
@@ -187,13 +187,13 @@ public class Bullet extends AbstractGameObject {
     public int getBulletWidth() {
         switch (dir) {
             case UP:
-                return ResourceMgr.bulletU.getWidth();
+                return ImageUtil.bulletU.getWidth();
             case LEFT:
-                return ResourceMgr.bulletL.getWidth();
+                return ImageUtil.bulletL.getWidth();
             case DOWN:
-                return ResourceMgr.bulletD.getWidth();
+                return ImageUtil.bulletD.getWidth();
             case RIGHT:
-                return ResourceMgr.bulletR.getWidth();
+                return ImageUtil.bulletR.getWidth();
             default:
                 return 0;
         }
@@ -207,13 +207,13 @@ public class Bullet extends AbstractGameObject {
     public int getBulletHeight() {
         switch (dir) {
             case UP:
-                return ResourceMgr.bulletU.getHeight();
+                return ImageUtil.bulletU.getHeight();
             case LEFT:
-                return ResourceMgr.bulletL.getHeight();
+                return ImageUtil.bulletL.getHeight();
             case DOWN:
-                return ResourceMgr.bulletD.getHeight();
+                return ImageUtil.bulletD.getHeight();
             case RIGHT:
-                return ResourceMgr.bulletR.getHeight();
+                return ImageUtil.bulletR.getHeight();
             default:
                 return 0;
         }
