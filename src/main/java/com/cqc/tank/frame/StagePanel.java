@@ -43,6 +43,6 @@ public class StagePanel extends JPanel {
         g.drawImage(ImageUtil.stagePrepare, 0, 0, getWidth(), getHeight(), this);
         g.setColor(Color.BLACK);
         g.setFont(new Font("黑体", Font.BOLD, 100));
-        g.drawString("STAGE 1", getWidth() / 2 - 220, getHeight() / 2 - 20);
+        g.drawString("STAGE " + stage, getWidth() / 2 - 220, getHeight() / 2 - 20);
     }
 }

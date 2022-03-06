@@ -30,7 +30,7 @@ public class Grass extends GameObject {
     }
 
     /**
-     * 更新坦草地轮廓坐标
+     * 更新草地轮廓坐标
      */
     private void updateRect() {
         objRect.x = this.x;

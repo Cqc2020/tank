@@ -1,11 +1,8 @@
 package com.cqc.tank.frame;
 
+import com.cqc.tank.model.*;
 import com.cqc.tank.util.ImageUtil;
 import com.cqc.tank.entity.enums.MapObjEnum;
-import com.cqc.tank.model.GameObject;
-import com.cqc.tank.model.Grass;
-import com.cqc.tank.model.Wall;
-import com.cqc.tank.model.Water;
 import com.cqc.tank.util.MapIOUtil;
 
 import javax.swing.*;
@@ -24,24 +21,30 @@ import java.util.List;
  */
 public class MapEditPanel extends JPanel {
     private int stage;
-    private int stageCount;
     private MainFrame mainFrame;
-    private MapObjEnum mapObjEnum = MapObjEnum.WALLS;
+    private MapObjEnum mapObjEnum;
     private Rectangle outLineRect;
     private GameObject selectedMapObj;
     private MapEditMouseAdapter mapEditMouseAdapter;
     private MapEditMouseMotionAdapter mapEditMouseMotionAdapter;
-    private final List<GameObject> mapObjList = new ArrayList<>();
-    private final List<GameObject> sidebarObjList = new ArrayList<>();
+    private List<GameObject> mapObjList = new ArrayList<>();
+    private List<GameObject> sidebarObjList = new ArrayList<>();
 
-    public MapEditPanel(MainFrame mainFrame) {
+    public MapEditPanel(MainFrame mainFrame, int stage) {
         this.mainFrame = mainFrame;
+        this.stage = stage;
         // 初始化侧边栏地图元素
         setSideBarObjList();
         // 添加鼠标监听事件
         addMouseListener();
         // 保存和返回按钮
         addJButton();
+        initMapObjList();
+    }
+
+    private void initMapObjList() {
+        mapObjEnum = MapObjEnum.WALLS;
+        mapObjList = MapIOUtil.readMap(stage);
     }
 
     private void addMouseListener() {
@@ -54,7 +57,6 @@ public class MapEditPanel extends JPanel {
     private void addJButton() {
         JButton saveButton = new JButton("保存");
         saveButton.addActionListener((arg) -> {
-            System.out.println(arg);
             if (MapIOUtil.writeMap(mapObjList, stage)) {
                 JOptionPane.showMessageDialog(null, "保存成功");
             } else {
@@ -64,7 +66,6 @@ public class MapEditPanel extends JPanel {
 
         JButton backButton = new JButton("返回");
         backButton.addActionListener((arg) -> {
-            System.out.println(arg);
             // 返回后会失去聚焦，按键失效
             mainFrame.requestFocus();
             // 清除此界面的鼠标事件监听
@@ -73,22 +74,35 @@ public class MapEditPanel extends JPanel {
             // 返回登陆界面
             mainFrame.setPanel(new LoginPanel(mainFrame));
         });
+
+        JButton lastStage = new JButton("上一关");
+        lastStage.addActionListener((arg) -> {
+            System.out.println("上一关" + arg);
+            mainFrame.setPanel(new MapEditPanel(mainFrame, Stage.getInstance().getLastStage()));
+        });
+
+        JButton nextStage = new JButton("下一关");
+        nextStage.addActionListener((arg) -> {
+            mainFrame.setPanel(new MapEditPanel(mainFrame, Stage.getInstance().getNextStage()));
+        });
         add(saveButton);
         add(backButton);
+        add(lastStage);
+        add(nextStage);
     }
 
 
     /**
      * 鼠标按压点坐标
      */
-    Point point;
+    private Point point;
     /**
      * 鼠标点击事件适配器
      */
     class MapEditMouseAdapter extends MouseAdapter {
         private static final int DOUBLE_CLICK = 2;
         private static final int SINGLE_CLICK = 1;
-        private Cursor cursor = new Cursor(Cursor.HAND_CURSOR);
+        private final Cursor cursor = new Cursor(Cursor.HAND_CURSOR);
 
         /**
          * 鼠标选中侧边栏的地图元素，用于绘制地图
@@ -232,8 +246,8 @@ public class MapEditPanel extends JPanel {
         super.paint(g);
         g.setColor(Color.ORANGE);
         g.setFont(new Font("黑体", Font.BOLD, 12));
-        g.drawString("当前关卡：" + stage, 0, 12);
-        g.drawString("关卡总数：" + stageCount, 0, 30);
+        g.drawString("当前关卡：" + Stage.getInstance().getCurStage(), 0, 12);
+        g.drawString("关卡总数：" + Stage.getInstance().getStageCount(), 0, 30);
         g.drawString("当前元素类型：" + mapObjEnum.getDesc(), 0, 48);
         g.drawString("地图元素总数：" + mapObjList.size(), 0, 66);
         g.setColor(Color.LIGHT_GRAY);
@@ -302,6 +316,10 @@ public class MapEditPanel extends JPanel {
                     mapObj = new Water(mainFrame.getWidth() - ImageUtil.water.getWidth(), lastHeight, MapObjEnum.WATER);
                     sidebarObjList.add(mapObj);
                     break;
+                case EAGLE:
+                    mapObj = new Eagle(mainFrame.getWidth() - ImageUtil.eagle.getWidth(), lastHeight, MapObjEnum.EAGLE);
+                    sidebarObjList.add(mapObj);
+                    break;
                 default:
             }
         }
@@ -328,52 +346,12 @@ public class MapEditPanel extends JPanel {
             case WATER:
                 mapObj = new Water(x - ImageUtil.water.getWidth() / 2, y - ImageUtil.water.getHeight() / 2, MapObjEnum.WATER);
                 break;
+            case EAGLE:
+                mapObj = new Eagle(x - ImageUtil.eagle.getWidth() / 2, y - ImageUtil.eagle.getHeight() / 2, MapObjEnum.EAGLE);
+                break;
             default:
         }
         return mapObj;
-    }
-
-    private void addMapObj(List<GameObject> list, MapObjEnum mapObjEnum, int x, int y) {
-        GameObject mapObj;
-        switch (mapObjEnum) {
-            case WALL:
-                mapObj = new Wall(x, y, MapObjEnum.WALL);
-                if (!collideDetect(mapObj)) {
-                    list.add(mapObj);
-                }
-                break;
-            case WALLS:
-                mapObj = new Wall(x, y, MapObjEnum.WALLS);
-                if (!collideDetect(mapObj)) {
-                    list.add(mapObj);
-                }
-                break;
-            case STEEL:
-                mapObj = new Wall(x, y, MapObjEnum.STEEL);
-                if (!collideDetect(mapObj)) {
-                    list.add(mapObj);
-                }
-                break;
-            case STEELS:
-                mapObj = new Wall(x, y, MapObjEnum.STEELS);
-                if (!collideDetect(mapObj)) {
-                    list.add(mapObj);
-                }
-                break;
-            case GRASS:
-                mapObj = new Grass(x, y, MapObjEnum.GRASS);
-                if (!collideDetect(mapObj)) {
-                    list.add(mapObj);
-                }
-                break;
-            case WATER:
-                mapObj = new Water(x, y, MapObjEnum.WATER);
-                if (!collideDetect(mapObj)) {
-                    list.add(mapObj);
-                }
-                break;
-            default:
-        }
     }
 
     private void removeMapObj(Point p) {

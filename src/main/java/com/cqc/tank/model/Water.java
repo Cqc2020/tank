@@ -9,9 +9,10 @@ import java.awt.*;
  * @author Cqc
  * @date 2022/2/26
  */
-public class Water extends GameObject {
+public class Water extends Wall {
 
     public Water(int x, int y, MapObjEnum mapObjEnum) {
+        super(x, y, mapObjEnum);
         this.x = x;
         this.y = y;
         this.mapObjEnum = mapObjEnum;
@@ -30,7 +31,7 @@ public class Water extends GameObject {
     }
 
     /**
-     * 更新坦水轮廓坐标
+     * 更新水轮廓坐标
      */
     private void updateRect() {
         objRect.x = this.x;

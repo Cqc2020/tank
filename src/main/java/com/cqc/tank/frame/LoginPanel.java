@@ -1,7 +1,8 @@
 package com.cqc.tank.frame;
 
-import com.cqc.tank.util.ImageUtil;
 import com.cqc.tank.entity.enums.GamePatternEnum;
+import com.cqc.tank.model.Stage;
+import com.cqc.tank.util.ImageUtil;
 import lombok.Data;
 
 import javax.swing.*;
@@ -106,16 +107,16 @@ public class LoginPanel extends JPanel {
         private void selectPattern() {
             if (selectTankY == onePlayerY) {
                 gamePattern = GamePatternEnum.ONE_PLAYER;
-                enterPanel(new StagePanel(mainFrame, 1));
+                enterPanel(new StagePanel(mainFrame, Stage.getInstance().getFirstStage()));
             } else if (selectTankY == twoPlayerY) {
                 gamePattern = GamePatternEnum.TWO_PLAYER;
-                enterPanel(new StagePanel(mainFrame, 1));
+                enterPanel(new StagePanel(mainFrame, Stage.getInstance().getFirstStage()));
             } else if (selectTankY == previewMapY) {
                 gamePattern = GamePatternEnum.PREVIEW_MAP;
                 enterPanel(new MapPreviewPanel(mainFrame));
             } else {
                 gamePattern = GamePatternEnum.CUSTOM_MAP;
-                enterPanel(new MapEditPanel(mainFrame));
+                enterPanel(new MapEditPanel(mainFrame, Stage.getInstance().getCurStage()));
             }
         }
 

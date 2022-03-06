@@ -1,8 +1,8 @@
 package com.cqc.tank.model;
 
+import com.cqc.tank.frame.MainFrame;
 import com.cqc.tank.util.ImageUtil;
 import com.cqc.tank.frame.GamePanel;
-import com.cqc.tank.frame.TankFrame;
 import com.cqc.tank.entity.enums.DirectionEnum;
 import com.cqc.tank.entity.enums.GroupEnum;
 import lombok.Data;
@@ -129,7 +129,7 @@ public class Bullet extends GameObject {
         }
         bulletRect.x = this.x;
         bulletRect.y = this.y;
-        if (x < 0 || y < 0 || x > TankFrame.GAME_WIDTH || y > TankFrame.GAME_HEIGHT) {
+        if (x < 0 || y < 0 || x > MainFrame.GAME_WIDTH || y > MainFrame.GAME_HEIGHT) {
             alive = false;
         }
     }

@@ -33,7 +33,12 @@ public enum MapObjEnum {
     /**
      * 水图片
      */
-    WATER(5, "WATER");
+    WATER(5, "WATER"),
+
+    /**
+     * 基地图片
+     */
+    EAGLE(6, "EAGLE");
 
     private final Integer code;
     private final String desc;
@@ -57,6 +62,8 @@ public enum MapObjEnum {
             mapObjEnum = MapObjEnum.GRASS;
         } else if (MapObjEnum.WATER.getCode().equals(code)) {
             mapObjEnum = MapObjEnum.WATER;
+        } else if (MapObjEnum.EAGLE.getCode().equals(code)) {
+            mapObjEnum = MapObjEnum.EAGLE;
         }
         return mapObjEnum;
     }

@@ -1,10 +1,8 @@
 package com.cqc.tank.util;
 
 import com.cqc.tank.entity.enums.MapObjEnum;
-import com.cqc.tank.model.GameObject;
-import com.cqc.tank.model.Grass;
-import com.cqc.tank.model.Wall;
-import com.cqc.tank.model.Water;
+import com.cqc.tank.model.*;
+import lombok.SneakyThrows;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -28,7 +26,7 @@ public class MapIOUtil {
     /**
      * 地图保存路径
      */
-    private static final String MAP_SAVE_PATH = "src/main/resources/map/";
+    public static final String MAP_SAVE_PATH = "src/main/resources/map/";
     /**
      * 等于号
      */
@@ -56,6 +54,7 @@ public class MapIOUtil {
         StringBuilder steelsBuff = new StringBuilder(MapObjEnum.STEELS.getDesc()).append(EQUAL);
         StringBuilder grassBuff = new StringBuilder(MapObjEnum.GRASS.getDesc()).append(EQUAL);
         StringBuilder waterBuff = new StringBuilder(MapObjEnum.WATER.getDesc()).append(EQUAL);
+        StringBuilder eagleBuff = new StringBuilder(MapObjEnum.EAGLE.getDesc()).append(EQUAL);
         // 提取地图元素坐标数据
         for (GameObject mapObj : mapObjList) {
             String mapData = mapObj.x + COMMA + mapObj.y + SEMICOLON;
@@ -77,6 +76,9 @@ public class MapIOUtil {
                     break;
                 case WATER:
                     waterBuff.append(mapData);
+                    break;
+                case EAGLE:
+                    eagleBuff.append(mapData);
                     break;
                 default:
             }
@@ -127,6 +129,10 @@ public class MapIOUtil {
                 bw.write(waterBuff.toString().toCharArray());
                 bw.newLine();
             }
+            if (!Objects.equals(eagleBuff.toString(), MapObjEnum.EAGLE.getDesc() + EQUAL)) {
+                bw.write(eagleBuff.toString().toCharArray());
+                bw.newLine();
+            }
             bw.flush();
             return true;
         } catch (IOException e) {
@@ -138,11 +144,17 @@ public class MapIOUtil {
     /**
      * 读取地图
      */
+    @SneakyThrows
     public static List<GameObject> readMap(int stage) {
         File file = new File(MAP_SAVE_PATH + MAP_PREFIX + stage + MAP_SUFFIX);
+        if (!file.exists()) {
+            throw new FileNotFoundException("未读取到关卡【" + stage + "】的地图！");
+        }
         Properties props = new Properties();
         try (FileReader fr = new FileReader(file)) {
+            // 载入地图文件到properties
             props.load(fr);
+            // 将地图文件转为java对象
             return Objects.requireNonNull(readMapObj(props));
         } catch (IOException e) {
             e.printStackTrace();
@@ -183,6 +195,9 @@ public class MapIOUtil {
                         break;
                     case WATER:
                         mapObjList.add(new Water(x, y, MapObjEnum.WATER));
+                        break;
+                    case EAGLE:
+                        mapObjList.add(new Eagle(x, y, MapObjEnum.EAGLE));
                         break;
                     default:
                 }

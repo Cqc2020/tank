@@ -1,7 +1,7 @@
 package com.cqc.tank.model;
 
 import com.cqc.tank.frame.GamePanel;
-import com.cqc.tank.frame.TankFrame;
+import com.cqc.tank.frame.MainFrame;
 import com.cqc.tank.util.ImageUtil;
 import com.cqc.tank.entity.enums.DirectionEnum;
 import com.cqc.tank.entity.enums.GroupEnum;
@@ -192,10 +192,12 @@ public class Tank extends GameObject {
      */
     private void doHandleCollision(int x, int y) {
         // 坦克撞墙处理
-        for (Wall wall : gamePanel.getWallList()) {
-            if (CollisionDetectorFactory.getCollisionDetectStrategy(TankWallCollisionDetector.class).collisionDetect(this, wall, x, y)) {
-                moveFlag = false;
-                return;
+        for (GameObject gameObject : gamePanel.getMapObjList()) {
+            if (gameObject instanceof Wall || gameObject instanceof Water) {
+                if (CollisionDetectorFactory.getCollisionDetectStrategy(TankWallCollisionDetector.class).collisionDetect(this, gameObject, x, y)) {
+                    moveFlag = false;
+                    return;
+                }
             }
         }
         for (Tank tank : gamePanel.getTankList()) {
@@ -246,14 +248,14 @@ public class Tank extends GameObject {
         if (this.x <= 0) {
             this.x = 2;
         }
-        if (this.x > TankFrame.GAME_WIDTH - getTankWidth()) {
-            this.x = TankFrame.GAME_WIDTH - getTankWidth();
+        if (this.x > MainFrame.GAME_WIDTH - getTankWidth()) {
+            this.x = MainFrame.GAME_WIDTH - getTankWidth();
         }
         if (this.y <= 30) {
             this.y = 30;
         }
-        if (this.y >= TankFrame.GAME_HEIGHT - getTankHeight()) {
-            this.y = TankFrame.GAME_HEIGHT - getTankHeight();
+        if (this.y >= MainFrame.GAME_HEIGHT - getTankHeight()) {
+            this.y = MainFrame.GAME_HEIGHT - getTankHeight();
         }
     }
 
