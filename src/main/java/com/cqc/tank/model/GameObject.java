@@ -7,6 +7,7 @@ import java.awt.*;
 
 /**
  * 游戏物体抽象类
+ *
  * @author Cqc
  * @date 2022/2/20
  */
@@ -32,7 +33,11 @@ public abstract class GameObject {
     public MapObjEnum mapObjEnum;
     public boolean moveFlag = true;
 
+    /**
+     * 画笔
+     *
+     * @param g
+     */
     public abstract void paint(Graphics g);
-
 
 }

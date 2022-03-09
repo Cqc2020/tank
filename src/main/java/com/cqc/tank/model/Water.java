@@ -34,7 +34,6 @@ public class Water extends Wall {
      * 更新水轮廓坐标
      */
     private void updateRect() {
-        objRect.x = this.x;
-        objRect.y = this.y;
+        objRect.setLocation(x, y);
     }
 }

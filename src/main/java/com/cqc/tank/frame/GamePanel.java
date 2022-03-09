@@ -25,14 +25,6 @@ import java.util.concurrent.TimeUnit;
 public class GamePanel extends JPanel {
     private MainFrame mainFrame;
     /**
-     * 游戏窗体宽度
-     */
-    public static final int GAME_WIDTH = 1000;
-    /**
-     * 游戏窗体高度
-     */
-    public static final int GAME_HEIGHT = 600;
-    /**
      * 游戏界面键盘事件监听适配器
      */
     private GamePanelKeyAdapter gamePanelKeyAdapter;
@@ -134,20 +126,19 @@ public class GamePanel extends JPanel {
         }
     }
 
-    /*
-     * update()方法用于写每帧更新时的逻辑.
-     * 每一帧更新的时候, 我们会把该帧的图片画到屏幕中.
-     * 但是这样做是有缺陷的, 因为把一副图片画到屏幕上会有延时, 游戏显示不够流畅
-     * 所以这里用到了一种缓冲技术.
-     * 先把图像画到一块幕布上, 每帧更新的时候直接把画布推到窗口中显示
+    /**
+     * update()方法用于写每帧更新时的逻辑.每一帧更新的时候, 我们会把该帧的图片画到屏幕中.
+     * 但是这样做是有缺陷的, 因为把一副图片画到屏幕上会有延时, 游戏显示不够流畅；
+     * 所以这里用到了一种缓冲技术：先把图像画到一块幕布上, 每帧更新的时候直接把画布推到窗口中显示；
+     * @param g
      */
     @Override
     public void update(Graphics g) {
-        Image offScreenImage = this.createImage(GAME_WIDTH, GAME_HEIGHT);
+        Image offScreenImage = this.createImage(mainFrame.getWidth(), mainFrame.getHeight());
         Graphics graphics = offScreenImage.getGraphics();
         Color color = graphics.getColor();
         graphics.setColor(Color.BLACK);
-        graphics.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+        graphics.fillRect(0, 0, mainFrame.getWidth(), mainFrame.getHeight());
         graphics.setColor(color);
         paint(graphics);
         g.drawImage(offScreenImage, 0, 0, null);

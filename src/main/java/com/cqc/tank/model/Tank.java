@@ -244,7 +244,7 @@ public class Tank extends GameObject {
     /**
      * 坦克窗口边界检测
      */
-    private void boundsCheck() {
+    public void boundsCheck() {
         if (this.x <= 0) {
             this.x = 2;
         }

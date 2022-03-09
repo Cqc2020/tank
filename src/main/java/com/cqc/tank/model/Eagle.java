@@ -19,8 +19,7 @@ public class Eagle extends GameObject {
         this.mapObjEnum = mapObjEnum;
 
         objRect = new Rectangle();
-        objRect.x = this.x;
-        objRect.y = this.y;
+        objRect.setLocation(this.x, this.y);
         objRect.width = ImageUtil.water.getWidth();
         objRect.height = ImageUtil.water.getHeight();
     }

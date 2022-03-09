@@ -17,8 +17,7 @@ public class Grass extends GameObject {
         this.mapObjEnum = mapObjEnum;
 
         objRect = new Rectangle();
-        objRect.x = this.x;
-        objRect.y = this.y;
+        objRect.setLocation(this.x, this.y);
         objRect.width = ImageUtil.grass.getWidth();
         objRect.height = ImageUtil.grass.getHeight();
     }
@@ -33,7 +32,6 @@ public class Grass extends GameObject {
      * 更新草地轮廓坐标
      */
     private void updateRect() {
-        objRect.x = this.x;
-        objRect.y = this.y;
+        objRect.setLocation(x, y);
     }
 }

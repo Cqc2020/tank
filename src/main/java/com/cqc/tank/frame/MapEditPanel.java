@@ -1,8 +1,7 @@
 package com.cqc.tank.frame;
 
-import com.cqc.tank.model.*;
-import com.cqc.tank.util.ImageUtil;
 import com.cqc.tank.entity.enums.MapObjEnum;
+import com.cqc.tank.model.*;
 import com.cqc.tank.util.MapIOUtil;
 
 import javax.swing.*;
@@ -12,6 +11,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 地图编辑器面板
@@ -21,9 +21,10 @@ import java.util.List;
  */
 public class MapEditPanel extends JPanel {
     private int stage;
+    private int sidebarHeight;
+    private int sidebarWidth;
     private MainFrame mainFrame;
     private MapObjEnum mapObjEnum;
-    private Rectangle outLineRect;
     private GameObject selectedMapObj;
     private MapEditMouseAdapter mapEditMouseAdapter;
     private MapEditMouseMotionAdapter mapEditMouseMotionAdapter;
@@ -33,17 +34,23 @@ public class MapEditPanel extends JPanel {
     public MapEditPanel(MainFrame mainFrame, int stage) {
         this.mainFrame = mainFrame;
         this.stage = stage;
+        // 侧边栏宽度
+        sidebarWidth = 60;
+        // 侧边栏高度
+        sidebarHeight = 60;
         // 初始化侧边栏地图元素
         setSideBarObjList();
         // 添加鼠标监听事件
         addMouseListener();
         // 保存和返回按钮
         addJButton();
+        // 初始化地图元素
         initMapObjList();
     }
 
     private void initMapObjList() {
         mapObjEnum = MapObjEnum.WALLS;
+        // 读取地图文件
         mapObjList = MapIOUtil.readMap(stage);
     }
 
@@ -77,7 +84,6 @@ public class MapEditPanel extends JPanel {
 
         JButton lastStage = new JButton("上一关");
         lastStage.addActionListener((arg) -> {
-            System.out.println("上一关" + arg);
             mainFrame.setPanel(new MapEditPanel(mainFrame, Stage.getInstance().getLastStage()));
         });
 
@@ -85,17 +91,20 @@ public class MapEditPanel extends JPanel {
         nextStage.addActionListener((arg) -> {
             mainFrame.setPanel(new MapEditPanel(mainFrame, Stage.getInstance().getNextStage()));
         });
+
+        JButton clearButton = new JButton("全部清除");
+        clearButton.addActionListener((arg) -> {
+            mapObjList.clear();
+            selectedMapObj = null;
+        });
+
         add(saveButton);
         add(backButton);
         add(lastStage);
         add(nextStage);
+        add(clearButton);
     }
 
-
-    /**
-     * 鼠标按压点坐标
-     */
-    private Point point;
     /**
      * 鼠标点击事件适配器
      */
@@ -111,8 +120,7 @@ public class MapEditPanel extends JPanel {
          */
         @Override
         public void mousePressed(MouseEvent e) {
-            Point pp = e.getPoint();
-            point = new Point(pp.x, pp.y);
+            Point pp = amendPoint(e.getPoint());
             // 鼠标点中某个物体区域，则用该物体在地图中描绘
             if (isPickSideBarObj(pp)) {
                 setCursor(cursor);
@@ -126,35 +134,19 @@ public class MapEditPanel extends JPanel {
          */
         @Override
         public void mouseReleased(MouseEvent e) {
-            Point rp = e.getPoint();
-            if (!isPickSideBarObj(rp)) {
-                if (isObjIntersect(selectedMapObj)) {
-                    // outLineRect = selectedMapObj.objRect;
-                } else {
-                    // 碰撞检测
-                    // if (!collideDetect(selectedMapObj)) {
-                    // }
-                    // 鼠标释放：在释放处画出选中的地图元素
-                    mapObjList.add(selectedMapObj);
-                }
-            }
+            Point rp = amendPoint(e.getPoint());
+            drawMap(rp);
         }
 
-        /**
-         * 鼠标点击事件
-         *
-         * @param e
-         */
         @Override
         public void mouseClicked(MouseEvent e) {
-            if (e.getClickCount() == SINGLE_CLICK) {
-                // selectedMapObj = getMapObj(cp);
-            } else if (e.getClickCount() == DOUBLE_CLICK) {
-                // 鼠标左键双击：移除选中地图元素
-                removeMapObj(point);
+            Point cp = amendPoint(e.getPoint());
+            if (e.getButton() == MouseEvent.BUTTON3) {
+                Point ap = formatPoint(cp);
+                GameObject mapObj = getMapObj(ap);
+                removeMapObj(mapObj);
             }
         }
-
     }
 
     /**
@@ -162,76 +154,64 @@ public class MapEditPanel extends JPanel {
      */
     class MapEditMouseMotionAdapter extends MouseMotionAdapter {
         /**
-         * 鼠标拖拽：鼠标会拖拽选中的侧边栏地图元素
+         * 鼠标拖拽，mouseDragged会不断检测坐标变化
          *
          * @param e
          */
         @Override
         public void mouseDragged(MouseEvent e) {
-            if (selectedMapObj == null || selectedMapObj.moveFlag) {
-                Point dp = e.getPoint();
-                // 获取鼠标所在的地图元素
-                GameObject mapObj = getMapObj(point);
-                if (mapObj != null) {
-                    mapObj.x = dp.x;
-                    mapObj.y = dp.y;
-                    selectedMapObj = mapObj;
-                    mapObjEnum = mapObj.mapObjEnum;
-                    mapObjList.remove(mapObj);
-                }
-                // 给鼠标选中的地图元素赋值
-                selectedMapObj = setMapObj(dp.x, dp.y);
-            }
+            Point dp = amendPoint(e.getPoint());
+            drawMap(dp);
         }
     }
 
+    private void drawMap(Point p) {
+        if (isPickSideBarObj(p)) {
+            return;
+        }
+        // 创建一个点，不改变p点的坐标
+        Point ap = formatPoint(p);
+        // 鼠标拖拽起始点是否选中地图元素，为空则没选中
+        GameObject pickObj = getMapObj(ap);
+        if (Objects.nonNull(pickObj)) {
+            mapObjList.remove(pickObj);
+        }
+        selectedMapObj = addMapObj(ap);
+        mapObjList.add(selectedMapObj);
+    }
+
     /**
-     * 是否选中侧边栏的地图元素
+     * 修正坐标panel的y坐标起始点是23，因此修正
+     * @param p
+     * @return
+     */
+    private Point amendPoint(Point p) {
+        // 创建一个点，不改变原来点的坐标
+        return new Point(p.x, p.y - 23);
+    }
+
+    /**
+     * 格式化坐标
+     * @param p
+     * @return
+     */
+    private Point formatPoint(Point p) {
+        // 创建一个点，不改变原来点的坐标
+        Point fp = new Point(p.x, p.y);
+        fp.setLocation(fp.x - fp.x % 60, fp.y - fp.y % 60);
+        return fp;
+    }
+
+    /**
+     * 获取鼠标点击的地图元素
      *
      * @param p
      * @return
      */
-    private boolean isPickSideBarObj(Point p) {
-        // 鼠标点击panel的y坐标会多23，减去后，点击更加精准了
-        p.y -= 23;
-        for (GameObject gameObject : sidebarObjList) {
-            if (checkClickPoint(p, gameObject)) {
-                mapObjEnum = gameObject.getMapObjEnum();
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * 判断选中元素是否与地图上已有元素相交
-     * ______________
-     * |		   __|__________
-     * |	      |	 |          |
-     * |__________|__|          |
-     *            |_____________|
-     *
-     * @param selectedObj
-     * @return
-     */
-    private boolean isObjIntersect(GameObject selectedObj) {
-        if (mapObjList != null && mapObjList.size() > 0) {
-            for (GameObject gameObject : mapObjList) {
-                if (gameObject.objRect.intersects(selectedObj.objRect)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
     private GameObject getMapObj(Point p) {
         GameObject obj = null;
-        // 鼠标点击panel的y坐标会多23，减去后，点击更加精准了
-        p.y -= 23;
         if (mapObjList != null && mapObjList.size() > 0) {
-            for (int i = 0; i < mapObjList.size(); i++) {
-                GameObject gameObject = mapObjList.get(i);
+            for (GameObject gameObject : mapObjList) {
                 if (checkClickPoint(p, gameObject)) {
                     return gameObject;
                 }
@@ -275,12 +255,6 @@ public class MapEditPanel extends JPanel {
                 mapObjList.get(i).paint(g);
             }
         }
-        // 描绘出地图元素的轮廓，以作提示
-        if (outLineRect != null) {
-            g.setColor(Color.RED);
-            g.setFont(new Font("黑体", Font.BOLD, 28));
-            g.drawRect(outLineRect.x, outLineRect.y, outLineRect.width, outLineRect.height);
-        }
     }
 
     private void setSideBarObjList() {
@@ -288,36 +262,36 @@ public class MapEditPanel extends JPanel {
         for (int i = 0; i < MapObjEnum.values().length; i++) {
             MapObjEnum mapObjEnumByCode = MapObjEnum.getMapObjEnumByCode(i);
             if (i > 0) {
-                lastHeight += sidebarObjList.get(i - 1).objRect.height;
+                lastHeight += sidebarHeight;
             }
             GameObject mapObj;
             switch (mapObjEnumByCode) {
                 case WALL:
-                    mapObj = new Wall(mainFrame.getWidth() - ImageUtil.wall.getWidth(), lastHeight, MapObjEnum.WALL);
+                    mapObj = new Wall(mainFrame.getWidth() - sidebarWidth, lastHeight, MapObjEnum.WALL);
                     sidebarObjList.add(mapObj);
                     break;
                 case WALLS:
-                    mapObj = new Wall(mainFrame.getWidth() - ImageUtil.walls.getWidth(), lastHeight, MapObjEnum.WALLS);
+                    mapObj = new Wall(mainFrame.getWidth() - sidebarWidth, lastHeight, MapObjEnum.WALLS);
                     sidebarObjList.add(mapObj);
                     break;
                 case STEEL:
-                    mapObj = new Wall(mainFrame.getWidth() - ImageUtil.steel.getWidth(), lastHeight, MapObjEnum.STEEL);
+                    mapObj = new Wall(mainFrame.getWidth() - sidebarWidth, lastHeight, MapObjEnum.STEEL);
                     sidebarObjList.add(mapObj);
                     break;
                 case STEELS:
-                    mapObj = new Wall(mainFrame.getWidth() - ImageUtil.steels.getWidth(), lastHeight, MapObjEnum.STEELS);
+                    mapObj = new Wall(mainFrame.getWidth() - sidebarWidth, lastHeight, MapObjEnum.STEELS);
                     sidebarObjList.add(mapObj);
                     break;
                 case GRASS:
-                    mapObj = new Grass(mainFrame.getWidth() - ImageUtil.grass.getWidth(), lastHeight, MapObjEnum.GRASS);
+                    mapObj = new Grass(mainFrame.getWidth() - sidebarWidth, lastHeight, MapObjEnum.GRASS);
                     sidebarObjList.add(mapObj);
                     break;
                 case WATER:
-                    mapObj = new Water(mainFrame.getWidth() - ImageUtil.water.getWidth(), lastHeight, MapObjEnum.WATER);
+                    mapObj = new Water(mainFrame.getWidth() - sidebarWidth, lastHeight, MapObjEnum.WATER);
                     sidebarObjList.add(mapObj);
                     break;
                 case EAGLE:
-                    mapObj = new Eagle(mainFrame.getWidth() - ImageUtil.eagle.getWidth(), lastHeight, MapObjEnum.EAGLE);
+                    mapObj = new Eagle(mainFrame.getWidth() - sidebarWidth, lastHeight, MapObjEnum.EAGLE);
                     sidebarObjList.add(mapObj);
                     break;
                 default:
@@ -325,37 +299,40 @@ public class MapEditPanel extends JPanel {
         }
     }
 
-    private GameObject setMapObj(int x, int y) {
+    private GameObject addMapObj(Point point) {
         GameObject mapObj = null;
+        int x = point.x;
+        int y = point.y;
         switch (mapObjEnum) {
             case WALL:
-                mapObj = new Wall(x - ImageUtil.wall.getWidth() / 2, y - ImageUtil.wall.getHeight() / 2, MapObjEnum.WALL);
+                mapObj = new Wall(x, y, MapObjEnum.WALL);
                 break;
             case WALLS:
-                mapObj = new Wall(x - ImageUtil.walls.getWidth() / 2, y - ImageUtil.walls.getHeight() / 2, MapObjEnum.WALLS);
+                mapObj = new Wall(x, y, MapObjEnum.WALLS);
                 break;
             case STEEL:
-                mapObj = new Wall(x - ImageUtil.steel.getWidth() / 2, y - ImageUtil.steel.getHeight() / 2, MapObjEnum.STEEL);
+                mapObj = new Wall(x, y, MapObjEnum.STEEL);
                 break;
             case STEELS:
-                mapObj = new Wall(x - ImageUtil.steels.getWidth() / 2, y - ImageUtil.steels.getHeight() / 2, MapObjEnum.STEELS);
+                mapObj = new Wall(x, y, MapObjEnum.STEELS);
                 break;
             case GRASS:
-                mapObj = new Grass(x - ImageUtil.grass.getWidth() / 2, y - ImageUtil.grass.getHeight() / 2, MapObjEnum.GRASS);
+                mapObj = new Grass(x, y, MapObjEnum.GRASS);
                 break;
             case WATER:
-                mapObj = new Water(x - ImageUtil.water.getWidth() / 2, y - ImageUtil.water.getHeight() / 2, MapObjEnum.WATER);
+                mapObj = new Water(x, y, MapObjEnum.WATER);
                 break;
             case EAGLE:
-                mapObj = new Eagle(x - ImageUtil.eagle.getWidth() / 2, y - ImageUtil.eagle.getHeight() / 2, MapObjEnum.EAGLE);
+                mapObj = new Eagle(x, y, MapObjEnum.EAGLE);
                 break;
             default:
         }
+        removeMapObj(mapObj);
         return mapObj;
     }
 
-    private void removeMapObj(Point p) {
-        mapObjList.removeIf(mapObj -> checkClickPoint(p, mapObj));
+    private void removeMapObj(GameObject mapObj) {
+        mapObjList.removeIf(gameObject -> gameObject.equals(mapObj));
     }
 
     /**
@@ -366,20 +343,20 @@ public class MapEditPanel extends JPanel {
      * @return
      */
     private boolean checkClickPoint(Point p, GameObject obj) {
-        return p.x >= obj.objRect.getMinX()
-                && p.x <= obj.objRect.getMaxX()
-                && p.y >= obj.objRect.getMinY()
-                && p.y <= obj.objRect.getMaxY();
+        return p.equals(new Point(obj.x, obj.y));
     }
 
-    private boolean collideDetect(GameObject curMapObj) {
-        for (GameObject mapObj : mapObjList) {
-            if (!mapObj.equals(curMapObj)) {
-                if (mapObj.objRect.intersects(curMapObj.objRect)) {
-                    mapObj.moveFlag = false;
-                    System.out.println("要撞上啦");
-                    return true;
-                }
+    /**
+     * 是否选中侧边栏的地图元素
+     *
+     * @param p
+     * @return
+     */
+    private boolean isPickSideBarObj(Point p) {
+        for (GameObject sidebarObj : sidebarObjList) {
+            if (checkClickPoint(formatPoint(p), sidebarObj)) {
+                mapObjEnum = sidebarObj.getMapObjEnum();
+                return true;
             }
         }
         return false;

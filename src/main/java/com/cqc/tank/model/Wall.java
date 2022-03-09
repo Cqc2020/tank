@@ -27,8 +27,7 @@ public class Wall extends GameObject {
 
     private void setObjRectProfile(MapObjEnum mapObjEnum) {
         objRect = new Rectangle();
-        objRect.x = this.x;
-        objRect.y = this.y;
+        objRect.setLocation(this.x, this.y);
         switch (mapObjEnum) {
             case WALL:
                 this.width = objRect.width = ImageUtil.wall.getWidth();
@@ -75,8 +74,7 @@ public class Wall extends GameObject {
      * 更新墙体轮廓坐标
      */
     private void updateRect() {
-        objRect.x = this.x;
-        objRect.y = this.y;
+        objRect.setLocation(x, y);
     }
 
     /**
