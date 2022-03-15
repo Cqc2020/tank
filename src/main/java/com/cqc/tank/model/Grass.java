@@ -16,10 +16,7 @@ public class Grass extends GameObject {
         this.y = y;
         this.mapObjEnum = mapObjEnum;
 
-        objRect = new Rectangle();
-        objRect.setLocation(this.x, this.y);
-        objRect.width = ImageUtil.grass.getWidth();
-        objRect.height = ImageUtil.grass.getHeight();
+        objRect = new Rectangle(x, y, ImageUtil.grass.getWidth(), ImageUtil.grass.getHeight());
     }
 
     @Override

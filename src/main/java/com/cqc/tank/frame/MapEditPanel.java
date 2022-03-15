@@ -28,10 +28,20 @@ public class MapEditPanel extends JPanel {
     private GameObject selectedMapObj;
     private MapEditMouseAdapter mapEditMouseAdapter;
     private MapEditMouseMotionAdapter mapEditMouseMotionAdapter;
-    private List<GameObject> mapObjList = new ArrayList<>();
-    private List<GameObject> sidebarObjList = new ArrayList<>();
+    private List<GameObject> mapObjList;
+    private List<GameObject> sidebarObjList;
 
     public MapEditPanel(MainFrame mainFrame, int stage) {
+        this(mainFrame, stage, false);
+    }
+
+    /**
+     *
+     * @param mainFrame
+     * @param stage
+     * @param flag true：新增关卡，false：选择现有关卡
+     */
+    public MapEditPanel(MainFrame mainFrame, int stage, boolean flag) {
         this.mainFrame = mainFrame;
         this.stage = stage;
         // 侧边栏宽度
@@ -39,19 +49,19 @@ public class MapEditPanel extends JPanel {
         // 侧边栏高度
         sidebarHeight = 60;
         // 初始化侧边栏地图元素
+        sidebarObjList = new ArrayList<>();
+        mapObjEnum = MapObjEnum.WALLS;
         setSideBarObjList();
         // 添加鼠标监听事件
         addMouseListener();
         // 保存和返回按钮
-        addJButton();
-        // 初始化地图元素
-        initMapObjList();
-    }
-
-    private void initMapObjList() {
-        mapObjEnum = MapObjEnum.WALLS;
+        addButton();
         // 读取地图文件
-        mapObjList = MapIOUtil.readMap(stage);
+        if (!flag) {
+            mapObjList = MapIOUtil.readMap(stage);
+        }else {
+            mapObjList = new ArrayList<>();
+        }
     }
 
     private void addMouseListener() {
@@ -61,7 +71,7 @@ public class MapEditPanel extends JPanel {
         mainFrame.addMouseMotionListener(mapEditMouseMotionAdapter);
     }
 
-    private void addJButton() {
+    private void addButton() {
         JButton saveButton = new JButton("保存");
         saveButton.addActionListener((arg) -> {
             if (MapIOUtil.writeMap(mapObjList, stage)) {
@@ -92,6 +102,11 @@ public class MapEditPanel extends JPanel {
             mainFrame.setPanel(new MapEditPanel(mainFrame, Stage.getInstance().getNextStage()));
         });
 
+        JButton newButton = new JButton("新增关卡");
+        newButton.addActionListener((arg) -> {
+            mainFrame.setPanel(new MapEditPanel(mainFrame, Stage.getInstance().getNewStage(), true));
+        });
+
         JButton clearButton = new JButton("全部清除");
         clearButton.addActionListener((arg) -> {
             mapObjList.clear();
@@ -102,6 +117,7 @@ public class MapEditPanel extends JPanel {
         add(backButton);
         add(lastStage);
         add(nextStage);
+        add(newButton);
         add(clearButton);
     }
 
@@ -109,8 +125,6 @@ public class MapEditPanel extends JPanel {
      * 鼠标点击事件适配器
      */
     class MapEditMouseAdapter extends MouseAdapter {
-        private static final int DOUBLE_CLICK = 2;
-        private static final int SINGLE_CLICK = 1;
         private final Cursor cursor = new Cursor(Cursor.HAND_CURSOR);
 
         /**
@@ -333,6 +347,7 @@ public class MapEditPanel extends JPanel {
 
     private void removeMapObj(GameObject mapObj) {
         mapObjList.removeIf(gameObject -> gameObject.equals(mapObj));
+        selectedMapObj = null;
     }
 
     /**

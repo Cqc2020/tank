@@ -3,12 +3,21 @@ package com.cqc.tank.util;
 import javax.sound.sampled.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.Objects;
 
 /**
  * 声音类
  * @author Cqc on 2022/2/13 10:25 下午
  */
 public class AudioUtil {
+    private static String blastUrl = "resources/audio/blast.wav";
+    private static String exePath = System.getProperty("exe.path");
+
+    static {
+        if (Objects.nonNull(exePath)) {
+            blastUrl = exePath + blastUrl;
+        }
+    }
 
     /**
      * 播放背景音乐
@@ -16,10 +25,8 @@ public class AudioUtil {
     public static void playBgm() {
         new Thread(() -> {
             try {
-                int len = 0;
-                byte[] bytes = new byte[1024];
                 // 获取音频输入流
-                AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("target/classes/image/blast.wav"));
+                AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File(blastUrl));
                 // 获取音频编码对象
                 AudioFormat audioFormat = audioInputStream.getFormat();
                 // 设置数据输入

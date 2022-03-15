@@ -21,8 +21,6 @@ public abstract class GameObject {
      * 游戏物体的起始y坐标
      */
     public int y;
-    public int width;
-    public int height;
     /**
      * 游戏物体轮廓
      */
@@ -32,6 +30,7 @@ public abstract class GameObject {
      */
     public MapObjEnum mapObjEnum;
     public boolean moveFlag = true;
+    public boolean alive = true;
 
     /**
      * 画笔
@@ -40,4 +39,10 @@ public abstract class GameObject {
      */
     public abstract void paint(Graphics g);
 
+    /**
+     * 游戏物体消亡
+     */
+    public void die() {
+        this.alive = false;
+    }
 }

@@ -1,13 +1,19 @@
 package com.cqc.tank.model;
 
-import com.cqc.tank.frame.MainFrame;
-import com.cqc.tank.util.ImageUtil;
-import com.cqc.tank.frame.GamePanel;
 import com.cqc.tank.entity.enums.DirectionEnum;
 import com.cqc.tank.entity.enums.GroupEnum;
+import com.cqc.tank.entity.enums.MapObjEnum;
+import com.cqc.tank.factory.CollisionDetectorFactory;
+import com.cqc.tank.frame.GamePanel;
+import com.cqc.tank.frame.MainFrame;
+import com.cqc.tank.strategy.collide.BulletBulletCollisionDetector;
+import com.cqc.tank.strategy.collide.BulletTankCollisionDetector;
+import com.cqc.tank.strategy.collide.BulletWallCollisionDetector;
+import com.cqc.tank.util.ImageUtil;
 import lombok.Data;
 
 import java.awt.*;
+import java.util.List;
 
 /**
  * 子弹类
@@ -17,45 +23,38 @@ import java.awt.*;
 @Data
 public class Bullet extends GameObject {
     /**
+     * 子弹分组
+     */
+    private GroupEnum group;
+    /**
      * 子弹移动方向
      */
     private DirectionEnum dir;
-    /**
-     * 子弹分组
-     */
-    private final GroupEnum group;
     /**
      * 坦克窗口
      */
     private GamePanel gamePanel;
     /**
-     * 子弹存活状态
-     */
-    private boolean alive = true;
-    /**
-     * 矩形
-     */
-    private Rectangle bulletRect = new Rectangle();
-    /**
      * 子弹移动速度
      */
-    private static final int PLAYER_BULLET_SPEED = 10;
+    private static final int PLAYER_BULLET_SPEED = 15;
     /**
      * 子弹移动速度
      */
     private static final int ENEMY_BULLET_SPEED = 5;
 
-    public Bullet(int x, int y, DirectionEnum dir, GroupEnum goup, GamePanel gamePanel) {
+    public Bullet(int x, int y, DirectionEnum dir, GroupEnum group, GamePanel gamePanel) {
         this.x = x;
         this.y = y;
         this.dir = dir;
-        this.group = goup;
+        this.group = group;
         this.gamePanel = gamePanel;
+        init();
+    }
 
-        bulletRect.x = this.x;
-        bulletRect.y = this.y;
-        bulletRect.width = getBulletWidth();
-        bulletRect.height = getBulletHeight();
+    private void init() {
+        alive = true;
+        objRect = new Rectangle(x, y, ImageUtil.getBulletWidth(dir), ImageUtil.getBulletHeight(dir));
     }
 
     /**
@@ -65,9 +64,13 @@ public class Bullet extends GameObject {
      */
     @Override
     public void paint(Graphics g) {
-        if (!alive) {
-            gamePanel.getPlayerBulletList().remove(this);
-        }
+        paintFrame(g);
+        handleCollision();
+        handleMoving();
+        updateRect();
+    }
+
+    private void paintFrame(Graphics g) {
         switch (dir) {
             case UP:
                 g.drawImage(ImageUtil.bulletU, x, y, null);
@@ -84,13 +87,77 @@ public class Bullet extends GameObject {
             default:
                 break;
         }
-        move();
+    }
+
+    /**
+     * 更新子弹轮廓坐标
+     */
+    private void updateRect() {
+        objRect.setLocation(x, y);
+    }
+
+    private void handleCollision() {
+        // 子弹撞上坦克
+        List<Tank> tankList = gamePanel.getTankList();
+        for (int i = 0; i < tankList.size(); i++) {
+            Tank tank = tankList.get(i);
+            // 坦克不能和自己进行碰撞检测，否则会出现坦克无法移动的bug
+            if (this.group.equals(tank.getGroup())) {
+                continue;
+            }
+            if (CollisionDetectorFactory.getCollisionDetectStrategy(BulletTankCollisionDetector.class)
+                    .collisionDetect(this, tank)) {
+                this.die();
+                if (!tank.getGroup().equals(GroupEnum.PLAYER)) {
+                    tank.die();
+                }
+                return;
+            }
+        }
+
+        // 子弹撞上地图元素砖墙，白墙，水，草， 鹰
+        for (GameObject mapObj : gamePanel.getMapObjList()) {
+            if (CollisionDetectorFactory.getCollisionDetectStrategy(BulletWallCollisionDetector.class)
+                    .collisionDetect(this, mapObj)) {
+                switch (mapObj.getMapObjEnum()) {
+                    case WALL:
+                    case WALLS:
+                    case EAGLE:
+                        this.die();
+                        mapObj.die();
+                        return;
+                    case STEEL:
+                    case STEELS:
+                        this.die();
+                        break;
+                    case GRASS:
+                    case WATER:
+                        break;
+                    default:
+                }
+            }
+        }
+
+        // 子弹与子弹相撞处理
+        for (Bullet bullet : gamePanel.getBulletList()) {
+            if (CollisionDetectorFactory.getCollisionDetectStrategy(BulletBulletCollisionDetector.class)
+                    .collisionDetect(this, bullet)) {
+                if (!group.equals(bullet.group)) {
+                    this.die();
+                    bullet.die();
+                    if (GroupEnum.ENEMY.equals(group)) {
+                        gamePanel.getBlastList().add(new Blast(x, y, MapObjEnum.BULLET));
+                    }
+                }
+            }
+        }
+
     }
 
     /**
      * 子弹向指定方向移动
      */
-    private void move() {
+    private void handleMoving() {
         // 根据按下的键，向不同方向移动
         if (GroupEnum.PLAYER.equals(this.group)) {
             switch (dir) {
@@ -127,95 +194,10 @@ public class Bullet extends GameObject {
                     break;
             }
         }
-        bulletRect.x = this.x;
-        bulletRect.y = this.y;
+        objRect.setLocation(x, y);
         if (x < 0 || y < 0 || x > MainFrame.GAME_WIDTH || y > MainFrame.GAME_HEIGHT) {
             alive = false;
         }
     }
 
-    /**
-     * 检测子弹是否与坦克碰撞
-     *
-     * @param obj
-     */
-    public void collideWith(Object obj) {
-        if (obj instanceof Tank) {
-            Tank tank = (Tank) obj;
-            // 己方子弹不应与己方坦克相撞
-            if (this.group.equals(tank.getGroup())) {
-                return;
-            }
-            if (bulletRect.intersects(tank.getTankRect())) {
-                this.die();
-                if (!tank.getGroup().equals(GroupEnum.PLAYER)) {
-                    tank.die();
-                }
-            }
-        }
-        if (obj instanceof Bullet) {
-            Bullet bullet = (Bullet) obj;
-            if (this.group.equals(bullet.getGroup())) {
-                return;
-            }
-            if (bulletRect.intersects(bullet.getBulletRect())) {
-                this.die();
-                bullet.die();
-            }
-        }
-        if (obj instanceof Wall) {
-            Wall wall = (Wall) obj;
-            if (bulletRect.intersects(wall.getObjRect())) {
-                // this.die();
-                // bullet.die();
-            }
-        }
-    }
-
-    /**
-     * 子弹死亡
-     */
-    public void die() {
-        this.alive = false;
-    }
-
-    /**
-     * 获取子弹的宽度
-     *
-     * @return
-     */
-    public int getBulletWidth() {
-        switch (dir) {
-            case UP:
-                return ImageUtil.bulletU.getWidth();
-            case LEFT:
-                return ImageUtil.bulletL.getWidth();
-            case DOWN:
-                return ImageUtil.bulletD.getWidth();
-            case RIGHT:
-                return ImageUtil.bulletR.getWidth();
-            default:
-                return 0;
-        }
-    }
-
-    /**
-     * 获取子弹的高度
-     *
-     * @return
-     */
-    public int getBulletHeight() {
-        switch (dir) {
-            case UP:
-                return ImageUtil.bulletU.getHeight();
-            case LEFT:
-                return ImageUtil.bulletL.getHeight();
-            case DOWN:
-                return ImageUtil.bulletD.getHeight();
-            case RIGHT:
-                return ImageUtil.bulletR.getHeight();
-            default:
-                return 0;
-        }
-    }
 }

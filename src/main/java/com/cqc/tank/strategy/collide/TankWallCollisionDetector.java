@@ -13,10 +13,10 @@ public class TankWallCollisionDetector implements CollisionDetector {
 
     @Override
     public boolean collisionDetect(Object o1, Object o2, int x, int y) {
-        if ((o1 instanceof Tank && o2 instanceof Wall)) {
-            return doCollisdoionDetect((Tank) o1, (Wall) o2, x, y);
-        } else if ((o1 instanceof Wall && o2 instanceof Tank)) {
-            return doCollisdoionDetect((Tank) o2, (Wall) o1, x, y);
+        if (o1 instanceof Tank && o2 instanceof Wall) {
+            return doCollisionDetect((Tank) o1, (Wall) o2, x, y);
+        } else if (o1 instanceof Wall && o2 instanceof Tank) {
+            return doCollisionDetect((Tank) o2, (Wall) o1, x, y);
         }
         return false;
     }
@@ -29,8 +29,8 @@ public class TankWallCollisionDetector implements CollisionDetector {
      * @param y 坦克y坐标
      * @return
      */
-    private boolean doCollisdoionDetect(Tank tank, Wall wall, int x, int y) {
-        Rectangle tankRect = tank.getTankRect();
+    private boolean doCollisionDetect(Tank tank, Wall wall, int x, int y) {
+        Rectangle tankRect = tank.getObjRect();
         int lastX = tankRect.x;
         int lastY = tankRect.y;
         tankRect.setLocation(x, y);

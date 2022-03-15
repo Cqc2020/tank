@@ -1,7 +1,7 @@
 package com.cqc.tank.model;
 
-import com.cqc.tank.util.ImageUtil;
 import com.cqc.tank.entity.enums.MapObjEnum;
+import com.cqc.tank.util.ImageUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -16,34 +16,27 @@ import java.awt.*;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class Wall extends GameObject {
-    private boolean alive = true;
 
     public Wall(int x, int y, MapObjEnum mapObjEnum) {
         this.x = x;
         this.y = y;
         this.mapObjEnum = mapObjEnum;
-        setObjRectProfile(mapObjEnum);
+        init();
     }
 
-    private void setObjRectProfile(MapObjEnum mapObjEnum) {
-        objRect = new Rectangle();
-        objRect.setLocation(this.x, this.y);
+    private void init() {
         switch (mapObjEnum) {
             case WALL:
-                this.width = objRect.width = ImageUtil.wall.getWidth();
-                this.height = objRect.height = ImageUtil.wall.getHeight();
+                objRect = new Rectangle(x, y, ImageUtil.wall.getWidth(), ImageUtil.wall.getHeight());
                 break;
             case WALLS:
-                objRect.width = ImageUtil.walls.getWidth();
-                objRect.height = ImageUtil.walls.getHeight();
+                objRect = new Rectangle(x, y, ImageUtil.walls.getWidth(), ImageUtil.walls.getHeight());
                 break;
             case STEEL:
-                objRect.width = ImageUtil.steel.getWidth();
-                objRect.height = ImageUtil.steel.getHeight();
+                objRect = new Rectangle(x, y, ImageUtil.steel.getWidth(), ImageUtil.steel.getHeight());
                 break;
             case STEELS:
-                objRect.width = ImageUtil.steels.getWidth();
-                objRect.height = ImageUtil.steels.getHeight();
+                objRect = new Rectangle(x, y, ImageUtil.steels.getWidth(), ImageUtil.steels.getHeight());
                 break;
             default:
         }
@@ -65,7 +58,6 @@ public class Wall extends GameObject {
                 g.drawImage(ImageUtil.steels, x, y, null);
                 break;
             default:
-                break;
         }
         updateRect();
     }
@@ -75,13 +67,6 @@ public class Wall extends GameObject {
      */
     private void updateRect() {
         objRect.setLocation(x, y);
-    }
-
-    /**
-     * 墙体销毁
-     */
-    public void die() {
-        this.alive = false;
     }
 
 }

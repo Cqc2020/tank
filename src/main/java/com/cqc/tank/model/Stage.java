@@ -46,7 +46,7 @@ public class Stage {
      * @return
      */
     public int getStageCount() {
-        File file = new File(MapIOUtil.MAP_SAVE_PATH);
+        File file = new File(MapIOUtil.mapSavePath);
         try {
             if (!file.exists()) {
                 throw new FileNotFoundException("当前文件夹无地图文件！" + file.getPath());
@@ -104,7 +104,8 @@ public class Stage {
      * @return
      */
     public int getNewStage() {
-        return getStageCount() + 1;
+        stage = getStageCount() + 1;
+        return stage;
     }
 
 }

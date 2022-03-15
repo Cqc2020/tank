@@ -3,6 +3,7 @@ package com.cqc.tank.frame;
 import com.cqc.tank.config.TankWarConfiguration;
 import com.cqc.tank.entity.enums.DirectionEnum;
 import com.cqc.tank.entity.enums.GroupEnum;
+import com.cqc.tank.entity.enums.MapObjEnum;
 import com.cqc.tank.model.*;
 import com.cqc.tank.util.MapIOUtil;
 import lombok.Data;
@@ -14,39 +15,49 @@ import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
  * 游戏界面面板
+ *
  * @author Cqc
  * @date 2022/2/27
  */
 @Data
 public class GamePanel extends JPanel {
     private MainFrame mainFrame;
+    private GroupEnum groupEnum;
+    private Integer enemyTankSpeed;
+    private Integer playerTankSpeed;
+    private Integer initialEnemyCount;
+    private Buff buff;
+    private Random r = new Random();
+    /**
+     * 坦克集合
+     */
+    private List<Tank> tankList;
+    /**
+     * 爆炸集合
+     */
+    private List<Blast> blastList;
+    /**
+     * 子弹集合
+     */
+    private List<Bullet> bulletList;
+    /**
+     * 地图元素集合(墙，水，草，基地)
+     */
+    private List<GameObject> mapObjList;
     /**
      * 游戏界面键盘事件监听适配器
      */
     private GamePanelKeyAdapter gamePanelKeyAdapter;
     /**
-     * 玩家子弹集合
+     * 按键反馈
      */
-    private List<Bullet> playerBulletList = new ArrayList<>();
-    /**
-     * 坦克集合
-     */
-    private List<Tank> tankList = new ArrayList<>();
-    /**
-     * 爆炸集合
-     */
-    private List<Blast> blastList = new ArrayList<>();
-    private List<GameObject> mapObjList = new ArrayList<>();
-    Integer initialEnemyTankCount = Integer.valueOf(TankWarConfiguration.getInstance().get("initialEnemyTankCount").toString());
-    Integer playerTankSpeed = Integer.valueOf(TankWarConfiguration.getInstance().get("playerTankSpeed").toString());
-    Integer enemyTankSpeed = Integer.valueOf(TankWarConfiguration.getInstance().get("enemyTankSpeed").toString());
-
-
-    // 按键反馈
     private boolean bU = false;
     private boolean bL = false;
     private boolean bD = false;
@@ -54,18 +65,28 @@ public class GamePanel extends JPanel {
 
     public GamePanel(MainFrame mainFrame) throws HeadlessException {
         this.mainFrame = mainFrame;
-        addKeyListener();
         init();
+        addKeyListener();
     }
 
     private void init() {
+        tankList = new ArrayList<>();
+        blastList = new ArrayList<>();
+        bulletList = new ArrayList<>();
+        mapObjList = MapIOUtil.readMap(Stage.getInstance().getCurStage());
+        initialEnemyCount = Integer.valueOf(TankWarConfiguration.getInstance().get("initialEnemyTankCount").toString());
+        playerTankSpeed = Integer.valueOf(TankWarConfiguration.getInstance().get("playerTankSpeed").toString());
+        enemyTankSpeed = Integer.valueOf(TankWarConfiguration.getInstance().get("enemyTankSpeed").toString());
         // 初始化玩家坦克
         tankList.add(new Tank(500, 500, DirectionEnum.UP, GroupEnum.PLAYER, this, playerTankSpeed, false));
         // 初始化敌方坦克
-        for (int i = 0; i < initialEnemyTankCount; i++) {
+        for (int i = 0; i < initialEnemyCount; i++) {
             tankList.add(new Tank(150 + i * 100, 150, DirectionEnum.DOWN, GroupEnum.ENEMY, this, enemyTankSpeed, true));
         }
-        mapObjList = MapIOUtil.readMap(Stage.getInstance().getCurStage());
+        ScheduledExecutorService ses = Executors.newSingleThreadScheduledExecutor();
+        ses.scheduleAtFixedRate(() -> {
+            buff = new Buff(r.nextInt(960), r.nextInt(660));
+        }, 0, 10, TimeUnit.SECONDS);
     }
 
     private void addKeyListener() {
@@ -130,6 +151,7 @@ public class GamePanel extends JPanel {
      * update()方法用于写每帧更新时的逻辑.每一帧更新的时候, 我们会把该帧的图片画到屏幕中.
      * 但是这样做是有缺陷的, 因为把一副图片画到屏幕上会有延时, 游戏显示不够流畅；
      * 所以这里用到了一种缓冲技术：先把图像画到一块幕布上, 每帧更新的时候直接把画布推到窗口中显示；
+     *
      * @param g
      */
     @Override
@@ -146,39 +168,57 @@ public class GamePanel extends JPanel {
 
     /**
      * 坦克大战画笔
+     *
      * @param g
      */
     @Override
     public void paint(Graphics g) {
         Color color = g.getColor();
         g.setColor(Color.WHITE);
-        g.drawString("子弹数量：" + playerBulletList.size(), 10, 60);
+        g.drawString("子弹数量：" + bulletList.size(), 10, 60);
         g.drawString("敌人数量：" + getEnemyTankCount(), 10, 80);
         g.setColor(color);
         // 画出所有坦克
         for (int i = 0; i < tankList.size(); i++) {
-            tankList.get(i).paint(g);
+            Tank tank = tankList.get(i);
+            if (!tank.alive) {
+                tankList.remove(tank);
+                blastList.add(new Blast(tank.x, tank.y, MapObjEnum.TANK));
+            }
+            tank.paint(g);
         }
         // 画出子弹
-        for (int i = 0; i < playerBulletList.size(); i++) {
-            playerBulletList.get(i).paint(g);
+        for (int i = 0; i < bulletList.size(); i++) {
+            Bullet bullet = bulletList.get(i);
+            if (!bullet.alive) {
+                bulletList.remove(bullet);
+            }
+            bullet.paint(g);
         }
         // 画出爆炸
         for (int i = 0; i < blastList.size(); i++) {
-            blastList.get(i).paint(g);
-        }
-        // 子弹与坦克的碰撞检测
-        for (int i = 0; i < playerBulletList.size(); i++) {
-            for (int j = 0; j < tankList.size(); j++) {
-                playerBulletList.get(i).collideWith(tankList.get(j));
+            Blast blast = blastList.get(i);
+            if (!blast.alive) {
+                blastList.remove(blast);
             }
+            blast.paint(g);
         }
         // 画出地图元素
         if (Objects.nonNull(mapObjList)) {
             for (int i = 0; i < mapObjList.size(); i++) {
-                mapObjList.get(i).paint(g);
+                GameObject mapObj = mapObjList.get(i);
+                if (!mapObj.alive) {
+                    mapObjList.remove(mapObj);
+                }
+                mapObj.paint(g);
             }
         }
+        // 画出游戏道具
+        if (Objects.isNull(buff)) {
+            buff = new Buff(r.nextInt(960), r.nextInt(660));
+        }
+        buff.paint(g);
+
         // 进入下一关
         if (getEnemyTankCount() == 0) {
             enterNextStage();
@@ -236,6 +276,7 @@ public class GamePanel extends JPanel {
 
     /**
      * 获取场上存活敌方坦克数量
+     *
      * @return
      */
     private int getEnemyTankCount() {

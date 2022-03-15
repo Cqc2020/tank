@@ -1,6 +1,5 @@
 package com.cqc;
 
-import com.cqc.tank.entity.enums.MapObjEnum;
 import com.cqc.tank.frame.MainFrame;
 import com.cqc.tank.model.Wall;
 
@@ -20,7 +19,7 @@ public class Test {
         // for (DirectionEnum value : DirectionEnum.values()) {
         //     System.out.println(value);
         // }
-        // System.out.println(ImageIO.read(ResourceMgr.class.getClassLoader().getResourceAsStream("image/blast1.gif")));
+        // System.out.println(ImageIO.read(ResourceMgr.class.getClassLoader().getResourceAsStream(path + "blast1.gif")));
         // Audio.playBgm();
         // System.out.println(TankWarConfiguration.getInstance().get("initialTankCount"));
 
@@ -34,8 +33,8 @@ public class Test {
 
     class MyList extends ArrayList<Wall> {
         {
-            add(new Wall(0, 200, MapObjEnum.WALLS));
-            add(new Wall(0, 200, MapObjEnum.WALLS));
+            // add(new Wall(0, 200, MapObjEnum.WALLS));
+            // add(new Wall(0, 200, MapObjEnum.WALLS));
         }
     }
 }

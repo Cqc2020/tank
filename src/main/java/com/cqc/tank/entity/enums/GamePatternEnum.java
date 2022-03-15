@@ -9,6 +9,7 @@ public enum GamePatternEnum {
      * 单人游戏模式
      */
     ONE_PLAYER,
+
     /**
      * 双人游戏模式
      */

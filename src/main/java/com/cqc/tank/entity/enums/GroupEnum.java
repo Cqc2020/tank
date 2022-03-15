@@ -5,12 +5,12 @@ package com.cqc.tank.entity.enums;
  */
 public enum GroupEnum {
     /**
-     * 玩家坦克
+     * 玩家
      */
     PLAYER,
 
     /**
-     * 敌方坦克
+     * 敌方
      */
     ENEMY;
 }

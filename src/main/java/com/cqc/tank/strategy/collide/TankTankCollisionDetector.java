@@ -12,7 +12,7 @@ public class TankTankCollisionDetector implements CollisionDetector {
 
     @Override
     public boolean collisionDetect(Object o1, Object o2, int x, int y) {
-        return doCollisdoionDetect((Tank) o1, (Tank) o2, x, y);
+        return doCollisionDetect((Tank) o1, (Tank) o2, x, y);
     }
 
     /**
@@ -23,12 +23,12 @@ public class TankTankCollisionDetector implements CollisionDetector {
      * @param y
      * @return
      */
-    private boolean doCollisdoionDetect(Tank tank1, Tank tank2, int x, int y) {
-        Rectangle tankRect = tank1.getTankRect();
+    private boolean doCollisionDetect(Tank tank1, Tank tank2, int x, int y) {
+        Rectangle tankRect = tank1.getObjRect();
         int lastX = tankRect.x;
         int lastY = tankRect.y;
         tankRect.setLocation(x, y);
-        if (tankRect.intersects(tank2.getTankRect())) {
+        if (tankRect.intersects(tank2.getObjRect())) {
             tankRect.setLocation(lastX, lastY);
             return true;
         }

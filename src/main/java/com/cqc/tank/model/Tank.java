@@ -1,14 +1,14 @@
 package com.cqc.tank.model;
 
-import com.cqc.tank.frame.GamePanel;
-import com.cqc.tank.frame.MainFrame;
-import com.cqc.tank.util.ImageUtil;
 import com.cqc.tank.entity.enums.DirectionEnum;
 import com.cqc.tank.entity.enums.GroupEnum;
 import com.cqc.tank.factory.CollisionDetectorFactory;
 import com.cqc.tank.factory.FireStrategyFactory;
+import com.cqc.tank.frame.GamePanel;
+import com.cqc.tank.frame.MainFrame;
 import com.cqc.tank.strategy.collide.TankTankCollisionDetector;
 import com.cqc.tank.strategy.collide.TankWallCollisionDetector;
+import com.cqc.tank.util.ImageUtil;
 import lombok.Data;
 
 import java.awt.*;
@@ -22,41 +22,33 @@ import java.util.Random;
 @Data
 public class Tank extends GameObject {
     /**
-     * 坦克移动方向
+     * 坦克移动速度
      */
-    private DirectionEnum dir;
+    private int speed;
+    /**
+     * 敌人移动方向
+     */
+    private Random random;
     /**
      * 坦克分组
      */
     private GroupEnum group;
     /**
-     * 敌人移动方向
+     * 玩家坦克移动标志
      */
-    private Random random = new Random();
+    private boolean moveFlag;
+    /**
+     * 坦克移动方向
+     */
+    private DirectionEnum dir;
     /**
      * 坦克窗口
      */
     private GamePanel gamePanel;
     /**
-     * 坦克存活状态
-     */
-    private boolean alive = true;
-    /**
-     * 玩家坦克移动标志
-     */
-    private boolean moveFlag;
-    /**
-     * 坦克形状
-     */
-    private Rectangle tankRect = new Rectangle();
-    /**
-     * 坦克移动速度
-     */
-    private int speed;
-    /**
      * 坦克开火策略工厂
      */
-    private FireStrategyFactory fireStrategyFactory = new FireStrategyFactory();
+    private FireStrategyFactory fireStrategyFactory;
 
     public Tank(int x, int y, DirectionEnum dir, GroupEnum group, GamePanel gamePanel, int speed, boolean moveFlag) {
         this.x = x;
@@ -66,11 +58,14 @@ public class Tank extends GameObject {
         this.gamePanel = gamePanel;
         this.speed = speed;
         this.moveFlag = moveFlag;
+        init();
+    }
 
-        tankRect.x = this.x;
-        tankRect.y = this.y;
-        tankRect.width = getTankWidth();
-        tankRect.height = getTankHeight();
+    private void init() {
+        alive = true;
+        random = new Random();
+        fireStrategyFactory = new FireStrategyFactory();
+        objRect = new Rectangle(x, y, ImageUtil.getTankWidth(group,dir), ImageUtil.getTankHeight(group,dir));
     }
 
     /**
@@ -80,11 +75,26 @@ public class Tank extends GameObject {
      */
     @Override
     public void paint(Graphics g) {
-        if (!alive) {
-            gamePanel.getTankList().remove(this);
-            gamePanel.getBlastList().add(new Blast(this.x, this.y, gamePanel));
-        }
-        if (GroupEnum.PLAYER.equals(this.group)) {
+        // 画出当前坦克
+        paintFrame(g);
+        // 先处理碰撞
+        handleCollision();
+        // 再判断是否移动
+        handleMoving();
+        // 敌方坦克开火
+        enemyFire();
+        // 边界检测
+        boundsCheck();
+        // update rect
+        updateRect();
+    }
+
+    /**
+     * 画出当前画面
+     * @param g
+     */
+    private void paintFrame(Graphics g) {
+        if (GroupEnum.PLAYER.equals(group)) {
             switch (dir) {
                 case UP:
                     g.drawImage(ImageUtil.playerTankU, x, y, null);
@@ -99,9 +109,8 @@ public class Tank extends GameObject {
                     g.drawImage(ImageUtil.playerTankR, x, y, null);
                     break;
                 default:
-                    break;
             }
-        } else if (GroupEnum.ENEMY.equals(this.group)) {
+        } else if (GroupEnum.ENEMY.equals(group)) {
             switch (dir) {
                 case UP:
                     g.drawImage(ImageUtil.enemyTankU, x, y, null);
@@ -116,26 +125,17 @@ public class Tank extends GameObject {
                     g.drawImage(ImageUtil.enemyTankR, x, y, null);
                     break;
                 default:
-                    break;
             }
         }
-        getNextFrame();
     }
 
     /**
-     * 获取坦克下一帧图像
+     * 敌方坦克开火
      */
-    private void getNextFrame() {
-        // 先处理碰撞
-        handleCollision();
-        // 再判断是否移动
-        move();
+    private void enemyFire() {
         if (GroupEnum.ENEMY.equals(group)) {
             fire(GroupEnum.ENEMY);
         }
-        boundsCheck();
-        // update rect
-        updateRect();
     }
 
     /**
@@ -163,7 +163,7 @@ public class Tank extends GameObject {
     /**
      * 坦克朝不同方向移动
      */
-    private void move() {
+    private void handleMoving() {
         if (!moveFlag) {
             return;
         }
@@ -181,7 +181,6 @@ public class Tank extends GameObject {
                 x += speed;
                 break;
             default:
-                break;
         }
     }
 
@@ -192,9 +191,9 @@ public class Tank extends GameObject {
      */
     private void doHandleCollision(int x, int y) {
         // 坦克撞墙处理
-        for (GameObject gameObject : gamePanel.getMapObjList()) {
-            if (gameObject instanceof Wall || gameObject instanceof Water) {
-                if (CollisionDetectorFactory.getCollisionDetectStrategy(TankWallCollisionDetector.class).collisionDetect(this, gameObject, x, y)) {
+        for (GameObject mapObj : gamePanel.getMapObjList()) {
+            if (mapObj instanceof Wall) {
+                if (CollisionDetectorFactory.getCollisionDetectStrategy(TankWallCollisionDetector.class).collisionDetect(this, mapObj, x, y)) {
                     moveFlag = false;
                     return;
                 }
@@ -219,7 +218,7 @@ public class Tank extends GameObject {
      * @param tank
      */
     private void stopMoving(Tank tank) {
-        if (group.equals(tank.getGroup())) {
+        if (group.equals(tank.group)) {
             // 都是玩家坦克
             if (GroupEnum.PLAYER.equals(group)) {
                 // TODO:当有两个玩家时，再处理
@@ -246,16 +245,16 @@ public class Tank extends GameObject {
      */
     public void boundsCheck() {
         if (this.x <= 0) {
-            this.x = 2;
+            this.x = 0;
         }
-        if (this.x > MainFrame.GAME_WIDTH - getTankWidth()) {
-            this.x = MainFrame.GAME_WIDTH - getTankWidth();
+        if (this.x > MainFrame.GAME_WIDTH - ImageUtil.getTankWidth(group, dir)) {
+            this.x = MainFrame.GAME_WIDTH - ImageUtil.getTankWidth(group, dir);
         }
-        if (this.y <= 30) {
-            this.y = 30;
+        if (this.y <= 0) {
+            this.y = 0;
         }
-        if (this.y >= MainFrame.GAME_HEIGHT - getTankHeight()) {
-            this.y = MainFrame.GAME_HEIGHT - getTankHeight();
+        if (this.y >= MainFrame.GAME_HEIGHT - ImageUtil.getTankHeight(group, dir)) {
+            this.y = MainFrame.GAME_HEIGHT - ImageUtil.getTankHeight(group, dir);
         }
     }
 
@@ -263,8 +262,7 @@ public class Tank extends GameObject {
      * 更新坦克轮廓坐标
      */
     private void updateRect() {
-        tankRect.x = this.x;
-        tankRect.y = this.y;
+        objRect.setLocation(x, y);
     }
 
     /**
@@ -276,6 +274,7 @@ public class Tank extends GameObject {
 
     /**
      * 设置坦克当前相反方向
+     * @param oldDir
      */
     public void setTankCounterDir(DirectionEnum oldDir) {
         switch (oldDir) {
@@ -292,7 +291,6 @@ public class Tank extends GameObject {
                 dir = DirectionEnum.LEFT;
                 break;
             default:
-                break;
         }
     }
 
@@ -303,120 +301,4 @@ public class Tank extends GameObject {
         fireStrategyFactory.getFireStrategy(group).fire(this);
     }
 
-    /**
-     * 坦克死亡
-     */
-    public void die() {
-        this.alive = false;
-    }
-
-    /**
-     * 获取坦克的宽度
-     *
-     * @return
-     */
-    public int getTankWidth() {
-        if (GroupEnum.PLAYER.equals(this.group)) {
-            switch (dir) {
-                case UP:
-                    return ImageUtil.playerTankU.getWidth();
-                case LEFT:
-                    return ImageUtil.playerTankL.getWidth();
-                case DOWN:
-                    return ImageUtil.playerTankD.getWidth();
-                case RIGHT:
-                    return ImageUtil.playerTankR.getWidth();
-                default:
-                    return 0;
-            }
-        } else {
-            switch (dir) {
-                case UP:
-                    return ImageUtil.enemyTankU.getWidth();
-                case LEFT:
-                    return ImageUtil.enemyTankL.getWidth();
-                case DOWN:
-                    return ImageUtil.enemyTankD.getWidth();
-                case RIGHT:
-                    return ImageUtil.enemyTankR.getWidth();
-                default:
-                    return 0;
-            }
-        }
-    }
-
-    /**
-     * 获取坦克的高度
-     *
-     * @return
-     */
-    public int getTankHeight() {
-        if (GroupEnum.PLAYER.equals(this.group)) {
-            switch (dir) {
-                case UP:
-                    return ImageUtil.playerTankU.getHeight();
-                case LEFT:
-                    return ImageUtil.playerTankL.getHeight();
-                case DOWN:
-                    return ImageUtil.playerTankD.getHeight();
-                case RIGHT:
-                    return ImageUtil.playerTankR.getHeight();
-                default:
-                    return 0;
-            }
-        } else {
-            switch (dir) {
-                case UP:
-                    return ImageUtil.enemyTankU.getHeight();
-                case LEFT:
-                    return ImageUtil.enemyTankL.getHeight();
-                case DOWN:
-                    return ImageUtil.enemyTankD.getHeight();
-                case RIGHT:
-                    return ImageUtil.enemyTankR.getHeight();
-                default:
-                    return 0;
-            }
-        }
-    }
-
-    /**
-     * 获取子弹的宽度
-     *
-     * @return
-     */
-    public int getBulletWidth() {
-        switch (dir) {
-            case UP:
-                return ImageUtil.bulletU.getWidth();
-            case LEFT:
-                return ImageUtil.bulletL.getWidth();
-            case DOWN:
-                return ImageUtil.bulletD.getWidth();
-            case RIGHT:
-                return ImageUtil.bulletR.getWidth();
-            default:
-                return 0;
-        }
-    }
-
-    /**
-     * 获取子弹的高度
-     *
-     * @return
-     */
-    public int getBulletHeight() {
-        switch (dir) {
-            case UP:
-                return ImageUtil.bulletU.getHeight();
-            case LEFT:
-                return ImageUtil.bulletL.getHeight();
-            case DOWN:
-                return ImageUtil.bulletD.getHeight();
-            case RIGHT:
-                return ImageUtil.bulletR.getHeight();
-            default:
-                return 0;
-        }
-    }
 }

@@ -26,7 +26,7 @@ public class MapIOUtil {
     /**
      * 地图保存路径
      */
-    public static final String MAP_SAVE_PATH = "src/main/resources/map/";
+    public static String mapSavePath = "resources/map/";
     /**
      * 等于号
      */
@@ -39,6 +39,13 @@ public class MapIOUtil {
      * 分号
      */
     private static final String SEMICOLON = ";";
+
+    static {
+        String exePath = System.getProperty("exe.path");
+        if (Objects.nonNull(exePath)) {
+            mapSavePath = exePath + mapSavePath;
+        }
+    }
 
     /**
      * 保存地图
@@ -85,7 +92,8 @@ public class MapIOUtil {
         }
 
         // 将地图数据写入文件
-        File file = new File(MAP_SAVE_PATH + MAP_PREFIX + stage + MAP_SUFFIX);
+        File file = new File(mapSavePath + MAP_PREFIX + stage + MAP_SUFFIX);
+
         try {
             // 创建空文件
             if (!file.getParentFile().exists()) {
@@ -146,9 +154,9 @@ public class MapIOUtil {
      */
     @SneakyThrows
     public static List<GameObject> readMap(int stage) {
-        File file = new File(MAP_SAVE_PATH + MAP_PREFIX + stage + MAP_SUFFIX);
+        File file = new File(mapSavePath + MAP_PREFIX + stage + MAP_SUFFIX);
         if (!file.exists()) {
-            throw new FileNotFoundException("未读取到关卡【" + stage + "】的地图！");
+            throw new FileNotFoundException("未读取到关卡【" + System.getProperty("exe.path") + "==" + file.getAbsolutePath() + "==" + file.getPath() + "==" + file.getName() + "】的地图！");
         }
         Properties props = new Properties();
         try (FileReader fr = new FileReader(file)) {

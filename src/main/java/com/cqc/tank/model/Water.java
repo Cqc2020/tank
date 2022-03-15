@@ -16,12 +16,11 @@ public class Water extends Wall {
         this.x = x;
         this.y = y;
         this.mapObjEnum = mapObjEnum;
+        init();
+    }
 
-        objRect = new Rectangle();
-        objRect.x = this.x;
-        objRect.y = this.y;
-        objRect.width = ImageUtil.water.getWidth();
-        objRect.height = ImageUtil.water.getHeight();
+    private void init() {
+        objRect = new Rectangle(x, y, ImageUtil.water.getWidth(), ImageUtil.water.getHeight());
     }
 
     @Override

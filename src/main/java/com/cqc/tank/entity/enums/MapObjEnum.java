@@ -38,7 +38,17 @@ public enum MapObjEnum {
     /**
      * 基地图片
      */
-    EAGLE(6, "EAGLE");
+    EAGLE(6, "EAGLE"),
+
+    /**
+     * 子弹
+     */
+    BULLET(7, "BULLET"),
+
+    /**
+     * 坦克
+     */
+    TANK(8, "TANK");
 
     private final Integer code;
     private final String desc;
@@ -64,6 +74,10 @@ public enum MapObjEnum {
             mapObjEnum = MapObjEnum.WATER;
         } else if (MapObjEnum.EAGLE.getCode().equals(code)) {
             mapObjEnum = MapObjEnum.EAGLE;
+        } else if (MapObjEnum.BULLET.getCode().equals(code)) {
+            mapObjEnum = MapObjEnum.BULLET;
+        } else if (MapObjEnum.TANK.getCode().equals(code)) {
+            mapObjEnum = MapObjEnum.TANK;
         }
         return mapObjEnum;
     }

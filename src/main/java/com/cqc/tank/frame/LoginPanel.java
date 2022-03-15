@@ -113,7 +113,7 @@ public class LoginPanel extends JPanel {
                 enterPanel(new StagePanel(mainFrame, Stage.getInstance().getFirstStage()));
             } else if (selectTankY == previewMapY) {
                 gamePattern = GamePatternEnum.PREVIEW_MAP;
-                enterPanel(new MapPreviewPanel(mainFrame));
+                enterPanel(new MapPreviewPanel(mainFrame, Stage.getInstance().getFirstStage()));
             } else {
                 gamePattern = GamePatternEnum.CUSTOM_MAP;
                 enterPanel(new MapEditPanel(mainFrame, Stage.getInstance().getCurStage()));
