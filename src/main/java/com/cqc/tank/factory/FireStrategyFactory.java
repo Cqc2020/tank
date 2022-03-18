@@ -1,6 +1,6 @@
 package com.cqc.tank.factory;
 
-import com.cqc.tank.config.TankWarConfiguration;
+import com.cqc.tank.config.GameConfig;
 import com.cqc.tank.entity.enums.GroupEnum;
 import com.cqc.tank.strategy.fire.DefaultFireStrategy;
 import com.cqc.tank.strategy.fire.FireStrategy;
@@ -12,8 +12,8 @@ import com.cqc.tank.strategy.fire.RandomDirFireStrategy;
  */
 public class FireStrategyFactory extends StrategyFactory {
 
-    private String playerLevel = TankWarConfiguration.getInstance().get("playerLevel").toString();
-    private String enemyLevel = TankWarConfiguration.getInstance().get("enemyLevel").toString();
+    private String playerLevel = GameConfig.getInstance().get("playerLevel").toString();
+    private String enemyLevel = GameConfig.getInstance().get("enemyLevel").toString();
 
     @Override
     public FireStrategy getFireStrategy(GroupEnum group) {

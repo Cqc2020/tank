@@ -3,12 +3,27 @@ package com.cqc.tank.strategy.collide;
 import com.cqc.tank.model.Tank;
 
 import java.awt.*;
+import java.util.Objects;
 
 /**
  * @author Cqc
  * @date 2022/2/21
  */
 public class TankTankCollisionDetector implements CollisionDetector {
+    private static volatile TankTankCollisionDetector INSTANCE;
+
+    private TankTankCollisionDetector() {}
+
+    public static TankTankCollisionDetector getInstance() {
+        if (Objects.isNull(INSTANCE)) {
+            synchronized (TankTankCollisionDetector.class) {
+                if (Objects.isNull(INSTANCE)) {
+                    INSTANCE = new TankTankCollisionDetector();
+                }
+            }
+        }
+        return INSTANCE;
+    }
 
     @Override
     public boolean collisionDetect(Object o1, Object o2, int x, int y) {

@@ -9,7 +9,8 @@ import com.cqc.tank.frame.MainFrame;
 import com.cqc.tank.strategy.collide.TankTankCollisionDetector;
 import com.cqc.tank.strategy.collide.TankWallCollisionDetector;
 import com.cqc.tank.util.ImageUtil;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.awt.*;
 import java.util.Random;
@@ -19,7 +20,8 @@ import java.util.Random;
  *
  * @author Cqc on 2022/2/12 9:48 上午
  */
-@Data
+@Getter
+@Setter
 public class Tank extends GameObject {
     /**
      * 坦克移动速度
@@ -62,7 +64,6 @@ public class Tank extends GameObject {
     }
 
     private void init() {
-        alive = true;
         random = new Random();
         fireStrategyFactory = new FireStrategyFactory();
         objRect = new Rectangle(x, y, ImageUtil.getTankWidth(group,dir), ImageUtil.getTankHeight(group,dir));
@@ -199,6 +200,7 @@ public class Tank extends GameObject {
                 }
             }
         }
+        // 坦克与坦克的碰撞处理
         for (Tank tank : gamePanel.getTankList()) {
             // 坦克不能和自己进行碰撞检测，否则会出现坦克无法移动的bug
             if (!this.equals(tank)) {
@@ -237,24 +239,6 @@ public class Tank extends GameObject {
                 // 敌方坦克停止前进
                 moveFlag = false;
             }
-        }
-    }
-
-    /**
-     * 坦克窗口边界检测
-     */
-    public void boundsCheck() {
-        if (this.x <= 0) {
-            this.x = 0;
-        }
-        if (this.x > MainFrame.GAME_WIDTH - ImageUtil.getTankWidth(group, dir)) {
-            this.x = MainFrame.GAME_WIDTH - ImageUtil.getTankWidth(group, dir);
-        }
-        if (this.y <= 0) {
-            this.y = 0;
-        }
-        if (this.y >= MainFrame.GAME_HEIGHT - ImageUtil.getTankHeight(group, dir)) {
-            this.y = MainFrame.GAME_HEIGHT - ImageUtil.getTankHeight(group, dir);
         }
     }
 
@@ -299,6 +283,16 @@ public class Tank extends GameObject {
      */
     public void fire(GroupEnum group) {
         fireStrategyFactory.getFireStrategy(group).fire(this);
+    }
+
+    /**
+     * 窗口边界检测
+     */
+    private void boundsCheck() {
+        Point p = MainFrame.boundsCheck(new Point(x, y),
+                ImageUtil.getTankWidth(group, dir), ImageUtil.getTankHeight(group, dir));
+        x = p.x;
+        y = p.y;
     }
 
 }

@@ -2,6 +2,8 @@ package com.cqc.tank.factory;
 
 import com.cqc.tank.strategy.collide.CollisionDetector;
 
+import java.lang.reflect.Method;
+
 /**
  * 碰撞检测器工厂
  * @author Cqc
@@ -17,7 +19,8 @@ public class CollisionDetectorFactory {
     public static CollisionDetector getCollisionDetectStrategy(Class clazz) {
         CollisionDetector cd = null;
         try {
-            cd = (CollisionDetector) Class.forName(clazz.getName()).newInstance();
+            Method method = Class.forName(clazz.getName()).getDeclaredMethod("getInstance", null);
+            cd = (CollisionDetector) method.invoke(null, null);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -23,7 +23,7 @@ public class Stage {
     /**
      * 双检锁单例Stage
      */
-    private static Stage INSTANCE;
+    private static volatile Stage INSTANCE;
 
     /**
      * 私有化构造器

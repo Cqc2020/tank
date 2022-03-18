@@ -3,11 +3,27 @@ package com.cqc.tank.strategy.collide;
 import com.cqc.tank.model.Bullet;
 import com.cqc.tank.model.Wall;
 
+import java.util.Objects;
+
 /**
  * @author Cqc
  * @date 2022/2/20
  */
 public class BulletWallCollisionDetector implements CollisionDetector {
+    private static volatile BulletWallCollisionDetector INSTANCE;
+
+    private BulletWallCollisionDetector() {}
+
+    public static BulletWallCollisionDetector getInstance() {
+        if (Objects.isNull(INSTANCE)) {
+            synchronized (BulletWallCollisionDetector.class) {
+                if (Objects.isNull(INSTANCE)) {
+                    INSTANCE = new BulletWallCollisionDetector();
+                }
+            }
+        }
+        return INSTANCE;
+    }
 
     @Override
     public boolean collisionDetect(Object o1, Object o2) {

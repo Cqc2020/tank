@@ -4,12 +4,27 @@ import com.cqc.tank.model.Tank;
 import com.cqc.tank.model.Wall;
 
 import java.awt.*;
+import java.util.Objects;
 
 /**
  * @author Cqc
  * @date 2022/2/20
  */
 public class TankWallCollisionDetector implements CollisionDetector {
+    private static volatile TankWallCollisionDetector INSTANCE;
+
+    private TankWallCollisionDetector() {}
+
+    public static TankWallCollisionDetector getInstance() {
+        if (Objects.isNull(INSTANCE)) {
+            synchronized (TankWallCollisionDetector.class) {
+                if (Objects.isNull(INSTANCE)) {
+                    INSTANCE = new TankWallCollisionDetector();
+                }
+            }
+        }
+        return INSTANCE;
+    }
 
     @Override
     public boolean collisionDetect(Object o1, Object o2, int x, int y) {

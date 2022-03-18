@@ -1,5 +1,6 @@
 package com.cqc.tank.model;
 
+import com.cqc.tank.entity.enums.AudioTypeEnum;
 import com.cqc.tank.entity.enums.MapObjEnum;
 import com.cqc.tank.util.AudioUtil;
 import com.cqc.tank.util.ImageUtil;
@@ -27,7 +28,7 @@ public class Blast extends GameObject {
     @Override
     public void paint(Graphics g) {
         // 添加背景音乐
-        AudioUtil.playBgm();
+        AudioUtil.syncPlayAudio(AudioTypeEnum.BLAST);
         switch (mapObjEnum) {
             case TANK:
                 for (int i = 0; i < ImageUtil.blasts.length; i++) {

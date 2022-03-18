@@ -7,15 +7,17 @@ import java.util.Properties;
  * 坦克大战配置类
  * @author Cqc on 2022/2/14 10:49 下午
  */
-public class TankWarConfiguration {
-    // 不加volatile，会发生指令重排问题
-    private static volatile TankWarConfiguration INSTANCE;
-    private TankWarConfiguration() {}
-    public static TankWarConfiguration getInstance() {
+public class GameConfig {
+    /**
+     * 不加volatile，会发生指令重排问题
+     */
+    private static volatile GameConfig INSTANCE;
+    private GameConfig() {}
+    public static GameConfig getInstance() {
         if (INSTANCE == null) {
-            synchronized(TankWarConfiguration.class) {
+            synchronized(GameConfig.class) {
                 if (INSTANCE == null) {
-                    INSTANCE = new TankWarConfiguration();
+                    INSTANCE = new GameConfig();
                 }
             }
         }
@@ -26,7 +28,7 @@ public class TankWarConfiguration {
 
     static {
         try {
-            props.load(TankWarConfiguration.class.getClassLoader().getResourceAsStream("config"));
+            props.load(GameConfig.class.getClassLoader().getResourceAsStream("config"));
         } catch (IOException e) {
             e.printStackTrace();
         }

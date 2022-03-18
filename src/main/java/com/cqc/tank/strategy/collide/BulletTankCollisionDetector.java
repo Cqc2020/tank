@@ -4,12 +4,27 @@ import com.cqc.tank.model.Bullet;
 import com.cqc.tank.model.Tank;
 
 import java.awt.*;
+import java.util.Objects;
 
 /**
  * @author Cqc
  * @date 2022/2/20
  */
 public class BulletTankCollisionDetector implements CollisionDetector {
+    private static volatile BulletTankCollisionDetector INSTANCE;
+
+    private BulletTankCollisionDetector() {}
+
+    public static BulletTankCollisionDetector getInstance() {
+        if (Objects.isNull(INSTANCE)) {
+            synchronized (BulletTankCollisionDetector.class) {
+                if (Objects.isNull(INSTANCE)) {
+                    INSTANCE = new BulletTankCollisionDetector();
+                }
+            }
+        }
+        return INSTANCE;
+    }
 
     @Override
     public boolean collisionDetect(Object o1, Object o2) {

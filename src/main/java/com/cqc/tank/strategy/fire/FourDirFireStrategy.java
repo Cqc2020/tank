@@ -1,9 +1,11 @@
 package com.cqc.tank.strategy.fire;
 
+import com.cqc.tank.entity.enums.AudioTypeEnum;
 import com.cqc.tank.entity.enums.DirectionEnum;
 import com.cqc.tank.entity.enums.GroupEnum;
 import com.cqc.tank.model.Bullet;
 import com.cqc.tank.model.Tank;
+import com.cqc.tank.util.AudioUtil;
 import com.cqc.tank.util.ImageUtil;
 
 /**
@@ -43,6 +45,7 @@ public class FourDirFireStrategy implements FireStrategy{
             default:
                 break;
         }
+        AudioUtil.asyncPlayAudio(AudioTypeEnum.FIRE);
         for (DirectionEnum dir : DirectionEnum.values()) {
             // 开火：坦克对象在窗口中生成一个子弹对象
             tank.getGamePanel().getBulletList().add(new Bullet(bX, bY, dir, tank.getGroup(), tank.getGamePanel()));

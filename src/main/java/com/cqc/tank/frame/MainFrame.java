@@ -66,4 +66,23 @@ public class MainFrame extends JFrame {
         c.validate();
     }
 
+    /**
+     * 窗口边界检测
+     */
+    public static Point boundsCheck(Point p, int width, int height) {
+        if (p.x <= 0) {
+            p.x = 0;
+        }
+        if (p.x > MainFrame.GAME_WIDTH - width) {
+            p.x = MainFrame.GAME_WIDTH - width;
+        }
+        if (p.y <= 0) {
+            p.y = 0;
+        }
+        if (p.y >= MainFrame.GAME_HEIGHT - height) {
+            p.y = MainFrame.GAME_HEIGHT - height;
+        }
+        return p;
+    }
+
 }
